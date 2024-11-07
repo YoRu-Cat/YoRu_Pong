@@ -15,7 +15,7 @@ public:
   {
     x += speedX;
     y += speedY;
-    if (y + radius >= GetScreenHeight() || y - radius <= 0)
+    if (y + radius >= GetScreenHeight() || y - radius <= 30)
     {
       speedY *= -1;
     }
@@ -26,7 +26,32 @@ public:
   }
 };
 
+class Paddle
+{
+public:
+  float x, y;
+  float width, height;
+  int speed;
+  void draw()
+  {
+    Color bgColor = {205, 25, 74, 255};
+    DrawRectangle(x, y, width, height, bgColor);
+  }
+  void move()
+  {
+    if (IsKeyDown(KEY_UP) && y > 45)
+    {
+      y -= speed;
+    }
+    else if (IsKeyDown(KEY_DOWN) && y + height + 10 < GetScreenHeight())
+    {
+      y += speed;
+    }
+  }
+};
+
 Ball ball;
+Paddle player;
 
 int main()
 {
@@ -41,6 +66,12 @@ int main()
   ball.y = height / 2;
   ball.speedX = 4;
   ball.speedY = 4;
+
+  player.width = 25;
+  player.height = 120;
+  player.x = width - player.width - 10;
+  player.y = height / 2 - player.height / 2;
+  player.speed = 4;
   // int ballX = width / 2;
   // int ballY = height / 2;
   bool drag = false;
@@ -131,6 +162,7 @@ int main()
 
     // Updating positions
     ball.move();
+    player.move();
 
     // Drawing
     ClearBackground(RAYWHITE);
@@ -138,21 +170,26 @@ int main()
     BeginDrawing();
 
     ClearBackground(RAYWHITE);
-    DrawText("YoRu Pong", 50, 10, 20, DARKGRAY);
+    DrawText("YoRu Pong", 50, 8, 20, DARKGRAY);
 
     // Draw close button
-    DrawRectangle(1570, 0, 30, 30, RED);
+    DrawRectangle(1570, 0, 30, 30, bgColor);
     DrawText("X", 1577, 2, 30, WHITE);
 
     // Draw the ball
     // DrawCircle(ballX, ballY, 15, bgColor);
     Rectangle rec = {0, 0, 1600, 900};
     DrawRectangleLinesEx(rec, 5, bgColor);
-    Rectangle rec1 = {0, 0, 30, 900};
+
+    Rectangle rec1 = {0, 30, 30, 900};
     DrawRectangleLinesEx(rec1, 5, bgColor);
-    DrawRectangle(width - 35, height / 2 - 60, 25, 120, bgColor);
+
+    Rectangle rec2 = {0, 0, 1600, 35};
+    DrawRectangleLinesEx(rec2, 5, bgColor);
+    // DrawRectangle(width - 35, height / 2 - 60, 25, 120, bgColor);
     ball.draw();
-    DrawLine(width / 2, 0, width / 2, height, bgColor);
+    player.draw();
+    DrawLine(width / 2, 35, width / 2, height, bgColor);
     EndDrawing();
 
     if (closeButtonClicked)
