@@ -1,5 +1,7 @@
 #include <raylib.h>
 
+int player1Score = 0;
+bool isGameOver = false;
 class Ball
 {
 public:
@@ -19,10 +21,22 @@ public:
     {
       speedY *= -1;
     }
-    if (x + radius >= GetScreenWidth() || x - radius <= 30)
+    if (x + radius >= GetScreenWidth())
     {
+      isGameOver = true;
+    }
+    else if (x - radius <= 30)
+    {
+      player1Score++;
       speedX *= -1;
     }
+  }
+  void reset()
+  {
+    x = GetScreenWidth() / 2;
+    y = GetScreenHeight() / 2;
+    speedX = 5;
+    speedY = 5;
   }
 };
 
@@ -48,7 +62,18 @@ public:
       y += speed;
     }
   }
+  void reset()
+  {
+    y = GetScreenHeight() / 2 - height / 2;
+  }
 };
+void ResetGame(Ball &ball, Paddle &player)
+{
+  isGameOver = false;
+  player1Score = 0;
+  ball.reset();
+  player.reset();
+}
 
 Ball ball;
 Paddle player;
@@ -64,14 +89,14 @@ int main()
   ball.radius = 15;
   ball.x = width / 2;
   ball.y = height / 2;
-  ball.speedX = 4;
-  ball.speedY = 4;
+  ball.speedX = 5;
+  ball.speedY = 5;
 
   player.width = 25;
   player.height = 120;
   player.x = width - player.width - 10;
   player.y = height / 2 - player.height / 2;
-  player.speed = 4;
+  player.speed = 5;
   // int ballX = width / 2;
   // int ballY = height / 2;
   bool drag = false;
@@ -161,8 +186,26 @@ int main()
     // (0,5)|
 
     // Updating positions
-    ball.move();
-    player.move();
+    // ball.move();
+    // player.move();
+    if (isGameOver)
+    {
+      if (IsKeyPressed(KEY_ENTER))
+      {
+        ResetGame(ball, player);
+      }
+    }
+    else
+    {
+      ball.move();
+      player.move();
+    }
+
+    // Checking for collision
+    if (CheckCollisionCircleRec({ball.x, ball.y}, ball.radius, {player.x, player.y, player.width, player.height}))
+    {
+      ball.speedX *= -1;
+    }
 
     // Drawing
     ClearBackground(RAYWHITE);
@@ -170,11 +213,9 @@ int main()
     BeginDrawing();
 
     ClearBackground(RAYWHITE);
-    DrawText("YoRu Pong", 50, 8, 20, DARKGRAY);
 
-    // Draw close button
-    DrawRectangle(1570, 0, 30, 30, bgColor);
-    DrawText("X", 1577, 2, 30, WHITE);
+    DrawRectangle(0, 0, 1600, 35, bgColor);
+    DrawText("YoRu Pong", 50, 8, 20, RAYWHITE);
 
     // Draw the ball
     // DrawCircle(ballX, ballY, 15, bgColor);
@@ -183,13 +224,28 @@ int main()
 
     Rectangle rec1 = {0, 30, 30, 900};
     DrawRectangleLinesEx(rec1, 5, bgColor);
+    // Draw close button
+    Rectangle rec2 = {1568, 2, 30, 30};
+    DrawRectangleLinesEx(rec2, 1, RAYWHITE);
+    // DrawRectangle(1570, 0, 30, 30, bgColor);
+    DrawText("X", 1574, 3, 30, WHITE);
+    DrawCircleLines(width / 2, height / 2, 100, bgColor);
 
-    Rectangle rec2 = {0, 0, 1600, 35};
-    DrawRectangleLinesEx(rec2, 5, bgColor);
+    // Rectangle rec2 = {0, 0, 1600, 35};
+    // DrawRectangleLinesEx(rec2, 5, bgColor);
+
     // DrawRectangle(width - 35, height / 2 - 60, 25, 120, bgColor);
     ball.draw();
     player.draw();
+    DrawText("Score:", width / 1.2, height / 10, 50, bgColor);
+    DrawText(TextFormat("%i", player1Score), width / 1.2, height / 6, 60, bgColor);
     DrawLine(width / 2, 35, width / 2, height, bgColor);
+    if (isGameOver)
+    {
+      DrawRectangle(width / 2 - 200, height / 2 - 75, 400, 150, bgColor);
+      DrawText("Game Over", width / 2 - 100, height / 2 - 30, 40, RAYWHITE);
+      DrawText("Press Enter to Restart", width / 2 - 120, height / 2 + 20, 20, RAYWHITE);
+    }
     EndDrawing();
 
     if (closeButtonClicked)
