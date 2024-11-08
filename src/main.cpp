@@ -239,6 +239,8 @@ int main()
     player.draw();
     DrawText("Score:", width / 1.2, height / 10, 50, bgColor);
     DrawText(TextFormat("%i", player1Score), width / 1.2, height / 6, 60, bgColor);
+    DrawText("FPS:", width / 8, height / 10, 50, bgColor);
+    DrawText(TextFormat("%i", GetFPS()), width / 8, height / 6, 60, bgColor);
     DrawLine(width / 2, 35, width / 2, height, bgColor);
     if (isGameOver)
     {
