@@ -169,7 +169,7 @@ int main()
 
     DrawRectangle(0, 0, 1600, 35, bgColor);
     DrawText("YoRu Pong", 50, 8, 20, RAYWHITE);
-    DrawText("V-2.0.2.", 200, 8, 20, RAYWHITE);
+    DrawText("V-2.0.3.", 200, 8, 20, RAYWHITE);
 
     Rectangle rec = {0, 0, 1600, 900};
     DrawRectangleLinesEx(rec, 5, bgColor);
