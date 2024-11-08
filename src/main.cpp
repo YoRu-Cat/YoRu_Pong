@@ -3,10 +3,12 @@
 int player1Score = 0;
 bool isGameOver = false;
 
+// ball ka content
 float ballX, ballY;
 int ballSpeedX, ballSpeedY;
 int ballRadius;
 
+// player ka content
 float paddleX, paddleY;
 float paddleWidth, paddleHeight;
 int paddleSpeed;
@@ -77,14 +79,14 @@ void ResetGame()
 
 int main()
 {
-  const int width = 1600;
+  int width = 1600;
   const int height = 900;
   Color bgColor = {205, 25, 74, 255};
   SetConfigFlags(FLAG_WINDOW_UNDECORATED);
   InitWindow(width, height, "YoRu Pong");
   SetTargetFPS(120);
 
-  ballRadius = 15;
+  ballRadius = 20;
   ballX = width / 2;
   ballY = height / 2;
   ballSpeedX = 5;
@@ -94,7 +96,7 @@ int main()
   paddleHeight = 120;
   paddleX = width - paddleWidth - 10;
   paddleY = height / 2 - paddleHeight / 2;
-  paddleSpeed = 5;
+  paddleSpeed = 6;
 
   bool drag = false;
   Vector2 dragOffset = {0, 0};
@@ -103,6 +105,8 @@ int main()
   {
     Vector2 mousePosition = GetMousePosition();
     bool closeButtonClicked = false;
+    bool minimizeButtonClicked = false;
+    bool maximizeButtonClicked = false;
 
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
@@ -110,6 +114,16 @@ int main()
           mousePosition.y >= 0 && mousePosition.y <= 20)
       {
         closeButtonClicked = true;
+      }
+      else if (mousePosition.x >= 1530 && mousePosition.x <= 1565 &&
+               mousePosition.y >= 0 && mousePosition.y <= 20)
+      {
+        minimizeButtonClicked = true;
+      }
+      else if (mousePosition.x >= 1495 && mousePosition.x <= 1530 &&
+               mousePosition.y >= 0 && mousePosition.y <= 20)
+      {
+        maximizeButtonClicked = true;
       }
       else if (mousePosition.y >= 0 && mousePosition.y <= 30)
       {
@@ -156,6 +170,7 @@ int main()
 
     DrawRectangle(0, 0, 1600, 35, bgColor);
     DrawText("YoRu Pong", 50, 8, 20, RAYWHITE);
+    DrawText("V-2.0.2.", 200, 8, 20, RAYWHITE);
 
     Rectangle rec = {0, 0, 1600, 900};
     DrawRectangleLinesEx(rec, 5, bgColor);
@@ -166,6 +181,15 @@ int main()
     Rectangle rec2 = {1568, 2, 30, 30};
     DrawRectangleLinesEx(rec2, 1, RAYWHITE);
     DrawText("X", 1574, 3, 30, WHITE);
+
+    Rectangle rec3 = {1533, 2, 30, 30};
+    DrawRectangleLinesEx(rec3, 1, RAYWHITE);
+    DrawText("-", 1542, 4, 30, WHITE);
+
+    Rectangle rec4 = {1498, 2, 30, 30};
+    DrawRectangleLinesEx(rec4, 1, RAYWHITE);
+    DrawText("O", 1504, 3, 30, WHITE);
+
     DrawCircleLines(width / 2, height / 2, 100, bgColor);
 
     DrawBall();
@@ -188,6 +212,14 @@ int main()
     if (closeButtonClicked)
     {
       break;
+    }
+    if (minimizeButtonClicked || IsKeyPressed(KEY_F10))
+    {
+      MinimizeWindow();
+    }
+    if (maximizeButtonClicked || IsKeyPressed(KEY_F11))
+    {
+      ToggleFullscreen();
     }
   }
 
