@@ -2,111 +2,156 @@
 
 int player1Score = 0;
 bool isGameOver = false;
-
-float ballX, ballY;
-int ballSpeedX, ballSpeedY;
-int ballRadius;
-
-float paddleX, paddleY;
-float paddleWidth, paddleHeight;
-int paddleSpeed;
-
-void DrawBall()
+class Ball
 {
-  Color bgColor = {205, 25, 74, 255};
-  DrawCircle(ballX, ballY, ballRadius, bgColor);
-}
-
-void MoveBall()
-{
-  ballX += ballSpeedX;
-  ballY += ballSpeedY;
-  if (ballY + ballRadius >= GetScreenHeight() || ballY - ballRadius <= 30)
+public:
+  float x = 0.0, y = 0.0;
+  int speedX = 0, speedY = 0;
+  int radius = 0;
+  void draw()
   {
-    ballSpeedY *= -1;
+    Color bgColor = {205, 25, 74, 255};
+    DrawCircle(x, y, radius, bgColor);
   }
-  if (ballX + ballRadius >= GetScreenWidth())
+  void move()
   {
-    isGameOver = true;
+    x += speedX;
+    y += speedY;
+    if (y + radius >= GetScreenHeight() || y - radius <= 30)
+    {
+      speedY *= -1;
+    }
+    if (x + radius >= GetScreenWidth())
+    {
+      isGameOver = true;
+    }
+    else if (x - radius <= 30)
+    {
+      player1Score++;
+      speedX *= -1;
+    }
   }
-  else if (ballX - ballRadius <= 30)
+  void reset()
   {
-    player1Score++;
-    ballSpeedX *= -1;
+    x = GetScreenWidth() / 2;
+    y = GetScreenHeight() / 2;
+    speedX = 5;
+    speedY = 5;
   }
-}
+};
 
-void ResetBall()
+class Paddle
 {
-  ballX = GetScreenWidth() / 2;
-  ballY = GetScreenHeight() / 2;
-  ballSpeedX = 5;
-  ballSpeedY = 5;
-}
-
-void DrawPaddle()
-{
-  Color bgColor = {205, 25, 74, 255};
-  DrawRectangle(paddleX, paddleY, paddleWidth, paddleHeight, bgColor);
-}
-
-void MovePaddle()
-{
-  if (IsKeyDown(KEY_UP) && paddleY > 45)
+public:
+  float x, y;
+  float width, height;
+  int speed;
+  void draw()
   {
-    paddleY -= paddleSpeed;
+    Color bgColor = {205, 25, 74, 255};
+    DrawRectangle(x, y, width, height, bgColor);
   }
-  else if (IsKeyDown(KEY_DOWN) && paddleY + paddleHeight + 10 < GetScreenHeight())
+  void move()
   {
-    paddleY += paddleSpeed;
+    if (IsKeyDown(KEY_UP) && y > 45)
+    {
+      y -= speed;
+    }
+    else if (IsKeyDown(KEY_DOWN) && y + height + 10 < GetScreenHeight())
+    {
+      y += speed;
+    }
   }
-}
-
-void ResetPaddle()
-{
-  paddleY = GetScreenHeight() / 2 - paddleHeight / 2;
-}
-
-void ResetGame()
+  void reset()
+  {
+    y = GetScreenHeight() / 2 - height / 2;
+  }
+};
+void ResetGame(Ball &ball, Paddle &player)
 {
   isGameOver = false;
   player1Score = 0;
-  ResetBall();
-  ResetPaddle();
+  ball.reset();
+  player.reset();
 }
+
+Ball ball;
+Paddle player;
 
 int main()
 {
-  const int width = GetScreenWidth() / 1.2;
-  const int height = GetScreenHeight() / 1.2;
+  const int width = 1600;
+  const int height = 900;
   Color bgColor = {205, 25, 74, 255};
   SetConfigFlags(FLAG_WINDOW_UNDECORATED);
   InitWindow(width, height, "YoRu Pong");
   SetTargetFPS(120);
+  ball.radius = 15;
+  ball.x = width / 2;
+  ball.y = height / 2;
+  ball.speedX = 5;
+  ball.speedY = 5;
 
-  ballX = width / 2;
-  ballY = height / 2;
-  ballSpeedX = 5;
-  ballSpeedY = 5;
-  ballRadius = 15;
-
-  paddleX = width - 35;
-  paddleY = height / 2 - 60;
-  paddleWidth = 25;
-  paddleHeight = 120;
-  paddleSpeed = 6;
-
+  player.width = 25;
+  player.height = 120;
+  player.x = width - player.width - 10;
+  player.y = height / 2 - player.height / 2;
+  player.speed = 5;
+  // int ballX = width / 2;
+  // int ballY = height / 2;
   bool drag = false;
   Vector2 dragOffset = {0, 0};
-
+  // Game loop
   while (!WindowShouldClose())
   {
+    // Event handling
     Vector2 mousePosition = GetMousePosition();
+    // Vector2 is a Built in Element provided by Raylib that takes two float values, x and y and draw 2D calculations
     bool closeButtonClicked = false;
+    // if (IsKeyDown(KEY_RIGHT))
+    // {
+    //   ballX += 2;
+    // }
+    // else if (IsKeyDown(KEY_LEFT))
+    // {
+    //   ballX -= 2;
+    // }
+    // else if (IsKeyDown(KEY_UP))
+    // {
+    //   ballY -= 2;
+    // }
+    // else if (IsKeyDown(KEY_DOWN))
+    // {
+    //   ballY += 2;
+    // }
+    // if (IsKeyDown(KEY_RIGHT) && IsKeyDown(KEY_UP))
+    // {
+    //   ballX += 1;
+    //   ballY -= 1;
+    // }
+    // else if (IsKeyDown(KEY_RIGHT) && IsKeyDown(KEY_DOWN))
+    // {
+    //   ballY += 1;
+    //   ballX += 1;
+    // }
+    // else if (IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_UP))
+    // {
+    //   ballY -= 1;
+    //   ballX -= 1;
+    // }
+    // else if (IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_DOWN))
+    // {
+    //   ballY += 1;
+    //   ballX -= 1;
+    // }
+    // else if (IsKeyDown(KEY_SPACE))
+    // {
+    //   bgColor = {(unsigned char)GetRandomValue(0, 255), (unsigned char)GetRandomValue(0, 255), (unsigned char)GetRandomValue(0, 255), 255};
+    // }
 
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
-      if (mousePosition.x >= width - 35 && mousePosition.x <= width &&
+      if (mousePosition.x >= 1565 && mousePosition.x <= 1600 &&
           mousePosition.y >= 0 && mousePosition.y <= 20)
       {
         closeButtonClicked = true;
@@ -129,51 +174,72 @@ int main()
       Vector2 delta = {currentMousePosition.x - dragOffset.x, currentMousePosition.y - dragOffset.y};
       SetWindowPosition(GetWindowPosition().x + delta.x, GetWindowPosition().y + delta.y);
     }
+    // Coordinate system
+    // increasing x value moves right
+    // increasing y value moves down
 
+    // (0,0).______________(5,0)
+    //      |
+    //      |
+    //      |
+    //      |
+    // (0,5)|
+
+    // Updating positions
+    // ball.move();
+    // player.move();
     if (isGameOver)
     {
       if (IsKeyPressed(KEY_ENTER))
       {
-        ResetGame();
+        ResetGame(ball, player);
       }
     }
     else
     {
-      MoveBall();
-      MovePaddle();
+      ball.move();
+      player.move();
     }
 
-    if (CheckCollisionCircleRec({ballX, ballY}, ballRadius, {paddleX, paddleY, paddleWidth, paddleHeight}))
+    // Checking for collision
+    if (CheckCollisionCircleRec({ball.x, ball.y}, ball.radius, {player.x, player.y, player.width, player.height}))
     {
-      ballSpeedX *= -1;
+      ball.speedX *= -1;
     }
 
+    // Drawing
     ClearBackground(RAYWHITE);
+
     BeginDrawing();
+
     ClearBackground(RAYWHITE);
 
     DrawRectangle(0, 0, 1600, 35, bgColor);
     DrawText("YoRu Pong", 50, 8, 20, RAYWHITE);
 
+    // Draw the ball
+    // DrawCircle(ballX, ballY, 15, bgColor);
     Rectangle rec = {0, 0, 1600, 900};
     DrawRectangleLinesEx(rec, 5, bgColor);
 
     Rectangle rec1 = {0, 30, 30, 900};
     DrawRectangleLinesEx(rec1, 5, bgColor);
-
+    // Draw close button
     Rectangle rec2 = {1568, 2, 30, 30};
     DrawRectangleLinesEx(rec2, 1, RAYWHITE);
+    // DrawRectangle(1570, 0, 30, 30, bgColor);
     DrawText("X", 1574, 3, 30, WHITE);
     DrawCircleLines(width / 2, height / 2, 100, bgColor);
 
-    DrawBall();
-    DrawPaddle();
+    // Rectangle rec2 = {0, 0, 1600, 35};
+    // DrawRectangleLinesEx(rec2, 5, bgColor);
+
+    // DrawRectangle(width - 35, height / 2 - 60, 25, 120, bgColor);
+    ball.draw();
+    player.draw();
     DrawText("Score:", width / 1.2, height / 10, 50, bgColor);
     DrawText(TextFormat("%i", player1Score), width / 1.2, height / 6, 60, bgColor);
     DrawLine(width / 2, 35, width / 2, height, bgColor);
-    DrawText("FPS:", width / 8, height / 10, 50, bgColor);
-    DrawText(TextFormat("%i", GetFPS()), width / 8, height / 6, 60, bgColor);
-
     if (isGameOver)
     {
       DrawRectangle(width / 2 - 200, height / 2 - 75, 400, 150, bgColor);
