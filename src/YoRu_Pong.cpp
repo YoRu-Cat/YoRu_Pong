@@ -94,19 +94,79 @@ void SaveScore(int score)
     TraceLog(LOG_ERROR, "Unable to open score file");
   }
 }
-void DrawSavedScore()
+// void SortAndDisplayTopScores()
+// {
+//   ifstream scoreFile("score.txt");
+//   int scores[100];
+//   int scoreCount = 0;
+//   string line;
+
+//   if (scoreFile.is_open())
+//   {
+//     while (getline(scoreFile, line))
+//     {
+//       size_t pos = line.find("Recent Score: ");
+//       if (pos != string::npos)
+//       {
+//         int score = stoi(line.substr(pos + 14));
+//         scores[scoreCount++] = score;
+//       }
+//     }
+//     scoreFile.close();
+//   }
+//   else
+//   {
+//     TraceLog(LOG_ERROR, "Unable to open score file");
+//     return;
+//   }
+
+//   for (int i = 0; i < scoreCount - 1; i++)
+//   {
+//     for (int j = 0; j < scoreCount - i - 1; j++)
+//     {
+//       if (scores[j] > scores[j + 1])
+//       {
+//         int temp = scores[j];
+//         scores[j] = scores[j + 1];
+//         scores[j + 1] = temp;
+//       }
+//     }
+//   }
+
+//   int displayCount = scoreCount < 10 ? scoreCount : 10;
+//   for (int i = 0; i < displayCount; i++)
+//   {
+//     DrawText(TextFormat("%i", scores[i]), GetScreenWidth() / 1.2, GetScreenHeight() / 1.2 - 40 - i * 20, 20, DARKGRAY);
+//   }
+// }
+void DrawSavedScores()
 {
   ifstream scoreFile("score.txt");
-  char line[256];
-  char lastScore[256] = "No Saved Score";
+  int scores[100];
+  int scoreCount = 0;
 
   if (scoreFile.is_open())
   {
+    char line[256];
     while (scoreFile.getline(line, sizeof(line)))
     {
-      for (size_t i = 0; i < sizeof(line) && line[i] != '\0'; i++)
+      int i = 0;
+      while (line[i] != ':' && line[i] != '\0')
       {
-        lastScore[i] = line[i];
+        i++;
+      }
+      if (line[i] == ':')
+      {
+        int score = 0;
+        for (int j = i + 2; line[j] != '\0'; j++)
+        {
+          if (line[j] >= '0' && line[j] <= '9')
+          {
+            score = score * 10 + (line[j] - '0');
+          }
+        }
+        scores[scoreCount] = score;
+        scoreCount++;
       }
     }
     scoreFile.close();
@@ -114,10 +174,29 @@ void DrawSavedScore()
   else
   {
     TraceLog(LOG_ERROR, "Unable to open score file");
+    return;
   }
 
-  DrawText("Last Score:", GetScreenWidth() / 1.2, GetScreenHeight() / 1.2, 20, DARKGRAY);
-  DrawText(lastScore, GetScreenWidth() / 1.2, GetScreenHeight() / 1.2 - 20, 20, DARKGRAY);
+  // Bubble sort scores in descending order
+  for (int i = 0; i < scoreCount - 1; i++)
+  {
+    for (int j = 0; j < scoreCount - i - 1; j++)
+    {
+      if (scores[j] < scores[j + 1])
+      {
+        int temp = scores[j];
+        scores[j] = scores[j + 1];
+        scores[j + 1] = temp;
+      }
+    }
+  }
+
+  // Draw top 5 scores
+  DrawText("Top 5 Scores:", GetScreenWidth() / 1.2, GetScreenHeight() / 1.2 - 22, 20, DARKGRAY);
+  for (int i = 0; i < (scoreCount < 5 ? scoreCount : 5); i++)
+  {
+    DrawText(TextFormat("%d", scores[i]), GetScreenWidth() / 1.2, GetScreenHeight() / 1.2 + i * 22, 20, DARKGRAY);
+  }
 }
 
 int main()
@@ -218,7 +297,7 @@ int main()
 
     DrawRectangle(0, 0, 1600, 35, bgColor);
     DrawText("YoRu Pong", 50, 8, 20, RAYWHITE);
-    DrawText("V-2.0.3.", 200, 8, 20, RAYWHITE);
+    DrawText("V-2.1.2.", 200, 8, 20, RAYWHITE);
 
     Rectangle rec = {0, 0, 1600, 900};
     DrawRectangleLinesEx(rec, 5, bgColor);
@@ -255,7 +334,7 @@ int main()
       DrawText("Press Enter to Restart", width / 2 - 120, height / 2 + 20, 20, RAYWHITE);
     }
 
-    DrawSavedScore();
+    DrawSavedScores();
 
     EndDrawing();
 
