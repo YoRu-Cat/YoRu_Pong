@@ -1,7 +1,10 @@
 #include <raylib.h>
+#include <fstream>
+using namespace std;
 
 int player1Score = 0;
 bool isGameOver = false;
+bool scoreSaved = false; // Add this flag
 
 // ball ka content
 float ballX, ballY;
@@ -72,9 +75,49 @@ void ResetPaddle()
 void ResetGame()
 {
   isGameOver = false;
+  scoreSaved = false; // Reset the flag
   player1Score = 0;
   ResetBall();
   ResetPaddle();
+}
+
+void SaveScore(int score)
+{
+  ofstream scoreFile("score.txt", ios::app);
+  if (scoreFile.is_open())
+  {
+    scoreFile << "Recent Score: " << score << endl;
+    scoreFile.close();
+  }
+  else
+  {
+    TraceLog(LOG_ERROR, "Unable to open score file");
+  }
+}
+void DrawSavedScore()
+{
+  ifstream scoreFile("score.txt");
+  char line[256];
+  char lastScore[256] = "No Saved Score";
+
+  if (scoreFile.is_open())
+  {
+    while (scoreFile.getline(line, sizeof(line)))
+    {
+      for (size_t i = 0; i < sizeof(line) && line[i] != '\0'; i++)
+      {
+        lastScore[i] = line[i];
+      }
+    }
+    scoreFile.close();
+  }
+  else
+  {
+    TraceLog(LOG_ERROR, "Unable to open score file");
+  }
+
+  DrawText("Last Score:", GetScreenWidth() / 1.2, GetScreenHeight() / 1.2, 20, DARKGRAY);
+  DrawText(lastScore, GetScreenWidth() / 1.2, GetScreenHeight() / 1.2 - 20, 20, DARKGRAY);
 }
 
 int main()
@@ -146,15 +189,21 @@ int main()
 
     if (isGameOver)
     {
-      if (IsKeyPressed(KEY_ENTER))
+      if (!scoreSaved)
       {
-        ResetGame();
+        SaveScore(player1Score);
+        scoreSaved = true; // Set the flag to true after saving the score
       }
     }
     else
     {
       MoveBall();
       MovePaddle();
+    }
+
+    if (isGameOver && IsKeyPressed(KEY_ENTER))
+    {
+      ResetGame();
     }
 
     if (CheckCollisionCircleRec({ballX, ballY}, ballRadius, {paddleX, paddleY, paddleWidth, paddleHeight}))
@@ -205,6 +254,8 @@ int main()
       DrawText("Game Over", width / 2 - 100, height / 2 - 30, 40, RAYWHITE);
       DrawText("Press Enter to Restart", width / 2 - 120, height / 2 + 20, 20, RAYWHITE);
     }
+
+    DrawSavedScore();
 
     EndDrawing();
 

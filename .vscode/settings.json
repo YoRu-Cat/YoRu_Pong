@@ -8,5 +8,9 @@
     "**/*.o": true,
     "**/*.exe": true
   },
-  "cSpell.words": ["DARKGRAY"]
+  "cSpell.words": ["DARKGRAY"],
+  "files.associations": {
+    "fstream": "cpp",
+    "*.tcc": "cpp"
+  }
 }
