@@ -94,51 +94,6 @@ void SaveScore(int score)
     TraceLog(LOG_ERROR, "Unable to open score file");
   }
 }
-// void SortAndDisplayTopScores()
-// {
-//   ifstream scoreFile("score.txt");
-//   int scores[100];
-//   int scoreCount = 0;
-//   string line;
-
-//   if (scoreFile.is_open())
-//   {
-//     while (getline(scoreFile, line))
-//     {
-//       size_t pos = line.find("Recent Score: ");
-//       if (pos != string::npos)
-//       {
-//         int score = stoi(line.substr(pos + 14));
-//         scores[scoreCount++] = score;
-//       }
-//     }
-//     scoreFile.close();
-//   }
-//   else
-//   {
-//     TraceLog(LOG_ERROR, "Unable to open score file");
-//     return;
-//   }
-
-//   for (int i = 0; i < scoreCount - 1; i++)
-//   {
-//     for (int j = 0; j < scoreCount - i - 1; j++)
-//     {
-//       if (scores[j] > scores[j + 1])
-//       {
-//         int temp = scores[j];
-//         scores[j] = scores[j + 1];
-//         scores[j + 1] = temp;
-//       }
-//     }
-//   }
-
-//   int displayCount = scoreCount < 10 ? scoreCount : 10;
-//   for (int i = 0; i < displayCount; i++)
-//   {
-//     DrawText(TextFormat("%i", scores[i]), GetScreenWidth() / 1.2, GetScreenHeight() / 1.2 - 40 - i * 20, 20, DARKGRAY);
-//   }
-// }
 void DrawSavedScores()
 {
   ifstream scoreFile("score.txt");
@@ -297,7 +252,7 @@ int main()
 
     DrawRectangle(0, 0, 1600, 35, bgColor);
     DrawText("YoRu Pong", 50, 8, 20, RAYWHITE);
-    DrawText("V-2.2.0.", 200, 8, 20, RAYWHITE);
+    DrawText("V-2.2.1.", 200, 8, 20, RAYWHITE);
 
     Rectangle rec = {0, 0, 1600, 900};
     DrawRectangleLinesEx(rec, 5, bgColor);
@@ -355,12 +310,12 @@ int main()
         ballSpeedY = 5;
         paddleSpeed = 6;
       }
-      else
+      else if (!IsWindowFullscreen())
       {
         SetTargetFPS(60);
-        ballSpeedX = 10;
-        ballSpeedY = 10;
-        paddleSpeed = 12;
+        ballSpeedX = 11;
+        ballSpeedY = 11;
+        paddleSpeed = 13;
       }
       ToggleFullscreen();
     }
