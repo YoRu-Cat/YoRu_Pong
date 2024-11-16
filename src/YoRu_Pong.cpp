@@ -297,7 +297,7 @@ int main()
 
     DrawRectangle(0, 0, 1600, 35, bgColor);
     DrawText("YoRu Pong", 50, 8, 20, RAYWHITE);
-    DrawText("V-2.1.2.", 200, 8, 20, RAYWHITE);
+    DrawText("V-2.2.0.", 200, 8, 20, RAYWHITE);
 
     Rectangle rec = {0, 0, 1600, 900};
     DrawRectangleLinesEx(rec, 5, bgColor);
@@ -348,6 +348,20 @@ int main()
     }
     if (maximizeButtonClicked || IsKeyPressed(KEY_F11))
     {
+      if (IsWindowFullscreen())
+      {
+        SetTargetFPS(120);
+        ballSpeedX = 5;
+        ballSpeedY = 5;
+        paddleSpeed = 6;
+      }
+      else
+      {
+        SetTargetFPS(60);
+        ballSpeedX = 10;
+        ballSpeedY = 10;
+        paddleSpeed = 12;
+      }
       ToggleFullscreen();
     }
   }
