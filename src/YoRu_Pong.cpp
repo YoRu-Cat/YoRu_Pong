@@ -163,8 +163,10 @@ void DrawMenu()
   bool playButtonClicked = false;
   bool exitButtonClicked = false;
 
-  Rectangle playButton = {GetScreenWidth() / 2 - 100, GetScreenHeight() / 2 - 50, 200, 50};
-  Rectangle exitButton = {GetScreenWidth() / 2 - 100, GetScreenHeight() / 2 + 20, 200, 50};
+  Rectangle playButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 120), 300.0f, 70.0f};
+  Rectangle leaderBoard = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 30), 300.0f, 70.0f};
+  Rectangle setting = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 60), 300.0f, 70.0f};
+  Rectangle exitButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 150), 300.0f, 70.0f};
 
   if (CheckCollisionPointRec(mousePosition, playButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
   {
@@ -179,10 +181,13 @@ void DrawMenu()
   ClearBackground(RAYWHITE);
 
   DrawRectangleRec(playButton, bgColor);
-  DrawText("Play", playButton.x + 70, playButton.y + 10, 30, RAYWHITE);
-
+  DrawText("Play", playButton.x + playButton.width / 2 - MeasureText("Play", 30) / 2, playButton.y + playButton.height / 2 - 15, 30, RAYWHITE);
+  DrawRectangleRec(leaderBoard, bgColor);
+  DrawText("LeaderBoard", leaderBoard.x + leaderBoard.width / 2 - MeasureText("LeaderBoard", 30) / 2, leaderBoard.y + leaderBoard.height / 2 - 15, 30, RAYWHITE);
+  DrawRectangleRec(setting, bgColor);
+  DrawText("Setting", setting.x + setting.width / 2 - MeasureText("Setting", 30) / 2, setting.y + setting.height / 2 - 15, 30, RAYWHITE);
   DrawRectangleRec(exitButton, bgColor);
-  DrawText("Exit", exitButton.x + 70, exitButton.y + 10, 30, RAYWHITE);
+  DrawText("Exit", exitButton.x + exitButton.width / 2 - MeasureText("Exit", 30) / 2, exitButton.y + exitButton.height / 2 - 15, 30, RAYWHITE);
 
   EndDrawing();
 
