@@ -4,8 +4,9 @@ using namespace std;
 
 int player1Score = 0;
 bool isGameOver = false;
-bool scoreSaved = false;  // Add this flag
-bool gameStarted = false; // Add this flag
+bool scoreSaved = false;      // Add this flag
+bool gameStarted = false;     // Add this flag
+bool showLeaderboard = false; // Add this flag
 
 // ball ka content
 float ballX, ballY;
@@ -149,10 +150,10 @@ void DrawSavedScores()
   }
 
   // Draw top 5 scores
-  DrawText("Top 5 Scores:", GetScreenWidth() / 1.2, GetScreenHeight() / 1.2 - 22, 20, DARKGRAY);
+  DrawText("Top 5 Scores:", GetScreenWidth() / 2 - 100, GetScreenHeight() / 2 - 100, 20, DARKGRAY);
   for (int i = 0; i < (scoreCount < 5 ? scoreCount : 5); i++)
   {
-    DrawText(TextFormat("%d", scores[i]), GetScreenWidth() / 1.2, GetScreenHeight() / 1.2 + i * 22, 20, DARKGRAY);
+    DrawText(TextFormat("%d", scores[i]), GetScreenWidth() / 2 - 100, GetScreenHeight() / 2 - 70 + i * 22, 20, DARKGRAY);
   }
 }
 
@@ -161,6 +162,7 @@ void DrawMenu()
   Color bgColor = {205, 25, 74, 255};
   Vector2 mousePosition = GetMousePosition();
   bool playButtonClicked = false;
+  bool leaderboardButtonClicked = false;
   bool exitButtonClicked = false;
 
   Rectangle playButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 120), 300.0f, 70.0f};
@@ -171,6 +173,10 @@ void DrawMenu()
   if (CheckCollisionPointRec(mousePosition, playButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
   {
     playButtonClicked = true;
+  }
+  if (CheckCollisionPointRec(mousePosition, leaderBoard) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  {
+    leaderboardButtonClicked = true;
   }
   if (CheckCollisionPointRec(mousePosition, exitButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
   {
@@ -195,9 +201,30 @@ void DrawMenu()
   {
     gameStarted = true;
   }
+  if (leaderboardButtonClicked)
+  {
+    showLeaderboard = true;
+  }
   if (exitButtonClicked)
   {
     CloseWindow();
+  }
+}
+
+void DrawLeaderboard()
+{
+  BeginDrawing();
+  ClearBackground(RAYWHITE);
+
+  DrawSavedScores();
+
+  DrawText("Press BACKSPACE to go back", GetScreenWidth() / 2 - 100, GetScreenHeight() - 50, 20, DARKGRAY);
+
+  EndDrawing();
+
+  if (IsKeyPressed(KEY_BACKSPACE))
+  {
+    showLeaderboard = false;
   }
 }
 
@@ -270,7 +297,14 @@ int main()
 
     if (!gameStarted)
     {
-      DrawMenu();
+      if (showLeaderboard)
+      {
+        DrawLeaderboard();
+      }
+      else
+      {
+        DrawMenu();
+      }
     }
     else
     {
@@ -341,8 +375,6 @@ int main()
         DrawText("Game Over", width / 2 - 100, height / 2 - 30, 40, RAYWHITE);
         DrawText("Press Enter to Restart", width / 2 - 120, height / 2 + 20, 20, RAYWHITE);
       }
-
-      DrawSavedScores();
 
       EndDrawing();
     }
