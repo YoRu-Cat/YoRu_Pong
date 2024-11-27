@@ -4,9 +4,10 @@ using namespace std;
 
 int player1Score = 0;
 bool isGameOver = false;
-bool scoreSaved = false;      // Add this flag
-bool gameStarted = false;     // Add this flag
-bool showLeaderboard = false; // Add this flag
+bool scoreSaved = false;
+bool gameStarted = false;
+bool showLeaderboard = false;
+bool showSettings = false; // Add this flag
 
 // ball ka content
 float ballX, ballY;
@@ -77,7 +78,7 @@ void ResetPaddle()
 void ResetGame()
 {
   isGameOver = false;
-  scoreSaved = false; // Reset the flag
+  scoreSaved = false;
   player1Score = 0;
   ResetBall();
   ResetPaddle();
@@ -135,7 +136,6 @@ void DrawSavedScores()
     return;
   }
 
-  // Bubble sort scores in descending order
   for (int i = 0; i < scoreCount - 1; i++)
   {
     for (int j = 0; j < scoreCount - i - 1; j++)
@@ -149,7 +149,6 @@ void DrawSavedScores()
     }
   }
 
-  // Draw top 5 scores
   DrawText("Top 5 Scores:", GetScreenWidth() / 2 - 100, GetScreenHeight() / 2 - 100, 20, DARKGRAY);
   for (int i = 0; i < (scoreCount < 5 ? scoreCount : 5); i++)
   {
@@ -163,11 +162,12 @@ void DrawMenu()
   Vector2 mousePosition = GetMousePosition();
   bool playButtonClicked = false;
   bool leaderboardButtonClicked = false;
+  bool settingsButtonClicked = false;
   bool exitButtonClicked = false;
 
   Rectangle playButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 120), 300.0f, 70.0f};
   Rectangle leaderBoard = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 30), 300.0f, 70.0f};
-  Rectangle setting = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 60), 300.0f, 70.0f};
+  Rectangle settingsButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 60), 300.0f, 70.0f};
   Rectangle exitButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 150), 300.0f, 70.0f};
 
   if (CheckCollisionPointRec(mousePosition, playButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
@@ -177,6 +177,10 @@ void DrawMenu()
   if (CheckCollisionPointRec(mousePosition, leaderBoard) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
   {
     leaderboardButtonClicked = true;
+  }
+  if (CheckCollisionPointRec(mousePosition, settingsButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  {
+    settingsButtonClicked = true;
   }
   if (CheckCollisionPointRec(mousePosition, exitButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
   {
@@ -190,8 +194,8 @@ void DrawMenu()
   DrawText("Play", playButton.x + playButton.width / 2 - MeasureText("Play", 30) / 2, playButton.y + playButton.height / 2 - 15, 30, RAYWHITE);
   DrawRectangleRec(leaderBoard, bgColor);
   DrawText("LeaderBoard", leaderBoard.x + leaderBoard.width / 2 - MeasureText("LeaderBoard", 30) / 2, leaderBoard.y + leaderBoard.height / 2 - 15, 30, RAYWHITE);
-  DrawRectangleRec(setting, bgColor);
-  DrawText("Setting", setting.x + setting.width / 2 - MeasureText("Setting", 30) / 2, setting.y + setting.height / 2 - 15, 30, RAYWHITE);
+  DrawRectangleRec(settingsButton, bgColor);
+  DrawText("Settings", settingsButton.x + settingsButton.width / 2 - MeasureText("Settings", 30) / 2, settingsButton.y + settingsButton.height / 2 - 15, 30, RAYWHITE);
   DrawRectangleRec(exitButton, bgColor);
   DrawText("Exit", exitButton.x + exitButton.width / 2 - MeasureText("Exit", 30) / 2, exitButton.y + exitButton.height / 2 - 15, 30, RAYWHITE);
 
@@ -205,9 +209,65 @@ void DrawMenu()
   {
     showLeaderboard = true;
   }
+  if (settingsButtonClicked)
+  {
+    showSettings = true;
+  }
   if (exitButtonClicked)
   {
     CloseWindow();
+  }
+}
+
+void DrawSettings()
+{
+  Color bgColor = {205, 25, 74, 255};
+  Vector2 mousePosition = GetMousePosition();
+  bool themeButtonClicked = false;
+  bool audioButtonClicked = false;
+  bool fpsLockButtonClicked = false;
+  bool moreButtonClicked = false;
+
+  Rectangle themeButton = {(float)(GetScreenWidth() / 2 - 150), 150.0f, 300.0f, 50.0f};
+  Rectangle audioButton = {(float)(GetScreenWidth() / 2 - 150), 220.0f, 300.0f, 50.0f};
+  Rectangle fpsLockButton = {(float)(GetScreenWidth() / 2 - 150), 290.0f, 300.0f, 50.0f};
+  Rectangle moreButton = {(float)(GetScreenWidth() / 2 - 150), 360.0f, 300.0f, 50.0f};
+
+  if (CheckCollisionPointRec(mousePosition, themeButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  {
+    themeButtonClicked = true;
+  }
+  if (CheckCollisionPointRec(mousePosition, audioButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  {
+    audioButtonClicked = true;
+  }
+  if (CheckCollisionPointRec(mousePosition, fpsLockButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  {
+    fpsLockButtonClicked = true;
+  }
+  if (CheckCollisionPointRec(mousePosition, moreButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  {
+    moreButtonClicked = true;
+  }
+
+  BeginDrawing();
+  ClearBackground(RAYWHITE);
+
+  DrawRectangleRec(themeButton, bgColor);
+  DrawText("Theme", themeButton.x + themeButton.width / 2 - MeasureText("Theme", 20) / 2, themeButton.y + themeButton.height / 2 - 10, 20, RAYWHITE);
+  DrawRectangleRec(audioButton, bgColor);
+  DrawText("Audio", audioButton.x + audioButton.width / 2 - MeasureText("Audio", 20) / 2, audioButton.y + audioButton.height / 2 - 10, 20, RAYWHITE);
+  DrawRectangleRec(fpsLockButton, bgColor);
+  DrawText("FPS Lock", fpsLockButton.x + fpsLockButton.width / 2 - MeasureText("FPS Lock", 20) / 2, fpsLockButton.y + fpsLockButton.height / 2 - 10, 20, RAYWHITE);
+  DrawRectangleRec(moreButton, bgColor);
+  DrawText("More", moreButton.x + moreButton.width / 2 - MeasureText("More", 20) / 2, moreButton.y + moreButton.height / 2 - 10, 20, RAYWHITE);
+  DrawText("Press BACKSPACE to go back", GetScreenWidth() / 2 - 100, GetScreenHeight() - 50, 20, DARKGRAY);
+
+  EndDrawing();
+
+  if (IsKeyPressed(KEY_BACKSPACE))
+  {
+    showSettings = false;
   }
 }
 
@@ -301,6 +361,10 @@ int main()
       {
         DrawLeaderboard();
       }
+      else if (showSettings)
+      {
+        DrawSettings();
+      }
       else
       {
         DrawMenu();
@@ -313,7 +377,7 @@ int main()
         if (!scoreSaved)
         {
           SaveScore(player1Score);
-          scoreSaved = true; // Set the flag to true after saving the score
+          scoreSaved = true;
         }
       }
       else
