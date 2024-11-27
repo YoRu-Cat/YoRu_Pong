@@ -4,7 +4,8 @@ using namespace std;
 
 int player1Score = 0;
 bool isGameOver = false;
-bool scoreSaved = false; // Add this flag
+bool scoreSaved = false;  // Add this flag
+bool gameStarted = false; // Add this flag
 
 // ball ka content
 float ballX, ballY;
@@ -94,6 +95,7 @@ void SaveScore(int score)
     TraceLog(LOG_ERROR, "Unable to open score file");
   }
 }
+
 void DrawSavedScores()
 {
   ifstream scoreFile("score.txt");
@@ -151,6 +153,46 @@ void DrawSavedScores()
   for (int i = 0; i < (scoreCount < 5 ? scoreCount : 5); i++)
   {
     DrawText(TextFormat("%d", scores[i]), GetScreenWidth() / 1.2, GetScreenHeight() / 1.2 + i * 22, 20, DARKGRAY);
+  }
+}
+
+void DrawMenu()
+{
+  Color bgColor = {205, 25, 74, 255};
+  Vector2 mousePosition = GetMousePosition();
+  bool playButtonClicked = false;
+  bool exitButtonClicked = false;
+
+  Rectangle playButton = {GetScreenWidth() / 2 - 100, GetScreenHeight() / 2 - 50, 200, 50};
+  Rectangle exitButton = {GetScreenWidth() / 2 - 100, GetScreenHeight() / 2 + 20, 200, 50};
+
+  if (CheckCollisionPointRec(mousePosition, playButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  {
+    playButtonClicked = true;
+  }
+  if (CheckCollisionPointRec(mousePosition, exitButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  {
+    exitButtonClicked = true;
+  }
+
+  BeginDrawing();
+  ClearBackground(RAYWHITE);
+
+  DrawRectangleRec(playButton, bgColor);
+  DrawText("Play", playButton.x + 70, playButton.y + 10, 30, RAYWHITE);
+
+  DrawRectangleRec(exitButton, bgColor);
+  DrawText("Exit", exitButton.x + 70, exitButton.y + 10, 30, RAYWHITE);
+
+  EndDrawing();
+
+  if (playButtonClicked)
+  {
+    gameStarted = true;
+  }
+  if (exitButtonClicked)
+  {
+    CloseWindow();
   }
 }
 
@@ -221,77 +263,84 @@ int main()
       SetWindowPosition(GetWindowPosition().x + delta.x, GetWindowPosition().y + delta.y);
     }
 
-    if (isGameOver)
+    if (!gameStarted)
     {
-      if (!scoreSaved)
-      {
-        SaveScore(player1Score);
-        scoreSaved = true; // Set the flag to true after saving the score
-      }
+      DrawMenu();
     }
     else
     {
-      MoveBall();
-      MovePaddle();
+      if (isGameOver)
+      {
+        if (!scoreSaved)
+        {
+          SaveScore(player1Score);
+          scoreSaved = true; // Set the flag to true after saving the score
+        }
+      }
+      else
+      {
+        MoveBall();
+        MovePaddle();
+      }
+
+      if (isGameOver && IsKeyPressed(KEY_ENTER))
+      {
+        ResetGame();
+      }
+
+      if (CheckCollisionCircleRec({ballX, ballY}, ballRadius, {paddleX, paddleY, paddleWidth, paddleHeight}))
+      {
+        ballSpeedX *= -1;
+      }
+      ClearBackground(RAYWHITE);
+
+      BeginDrawing();
+
+      ClearBackground(RAYWHITE);
+
+      DrawRectangle(0, 0, 1600, 35, bgColor);
+      DrawText("YoRu Pong", 50, 8, 20, RAYWHITE);
+      DrawText("V-2.2.1.", 200, 8, 20, RAYWHITE);
+
+      Rectangle rec = {0, 0, 1600, 900};
+      DrawRectangleLinesEx(rec, 5, bgColor);
+
+      Rectangle rec1 = {0, 30, 30, 900};
+      DrawRectangleLinesEx(rec1, 5, bgColor);
+
+      Rectangle rec2 = {1568, 2, 30, 30};
+      DrawRectangleLinesEx(rec2, 1, RAYWHITE);
+      DrawText("X", 1574, 3, 30, WHITE);
+
+      Rectangle rec3 = {1533, 2, 30, 30};
+      DrawRectangleLinesEx(rec3, 1, RAYWHITE);
+      DrawText("-", 1542, 4, 30, WHITE);
+
+      Rectangle rec4 = {1498, 2, 30, 30};
+      DrawRectangleLinesEx(rec4, 1, RAYWHITE);
+      DrawText("O", 1504, 3, 30, WHITE);
+
+      DrawCircleLines(width / 2, height / 2, 100, bgColor);
+
+      DrawBall();
+      DrawPaddle();
+      DrawText("Score:", width / 1.2, height / 10, 50, bgColor);
+      DrawText(TextFormat("%i", player1Score), width / 1.2, height / 6, 60, bgColor);
+      DrawText("FPS:", width / 8, height / 10, 50, bgColor);
+      DrawText(TextFormat("%i", GetFPS()), width / 8, height / 6, 60, bgColor);
+      DrawLine(width / 2, 35, width / 2, height, bgColor);
+
+      if (isGameOver)
+      {
+        DrawRectangle(width / 2 - 200, height / 2 - 75, 400, 150, bgColor);
+        DrawText("Game Over", width / 2 - 100, height / 2 - 30, 40, RAYWHITE);
+        DrawText("Press Enter to Restart", width / 2 - 120, height / 2 + 20, 20, RAYWHITE);
+      }
+
+      DrawSavedScores();
+
+      EndDrawing();
     }
-
-    if (isGameOver && IsKeyPressed(KEY_ENTER))
-    {
-      ResetGame();
-    }
-
-    if (CheckCollisionCircleRec({ballX, ballY}, ballRadius, {paddleX, paddleY, paddleWidth, paddleHeight}))
-    {
-      ballSpeedX *= -1;
-    }
-    ClearBackground(RAYWHITE);
-
-    BeginDrawing();
-
-    ClearBackground(RAYWHITE);
-
-    DrawRectangle(0, 0, 1600, 35, bgColor);
-    DrawText("YoRu Pong", 50, 8, 20, RAYWHITE);
-    DrawText("V-2.2.1.", 200, 8, 20, RAYWHITE);
-
-    Rectangle rec = {0, 0, 1600, 900};
-    DrawRectangleLinesEx(rec, 5, bgColor);
-
-    Rectangle rec1 = {0, 30, 30, 900};
-    DrawRectangleLinesEx(rec1, 5, bgColor);
-
-    Rectangle rec2 = {1568, 2, 30, 30};
-    DrawRectangleLinesEx(rec2, 1, RAYWHITE);
-    DrawText("X", 1574, 3, 30, WHITE);
-
-    Rectangle rec3 = {1533, 2, 30, 30};
-    DrawRectangleLinesEx(rec3, 1, RAYWHITE);
-    DrawText("-", 1542, 4, 30, WHITE);
-
-    Rectangle rec4 = {1498, 2, 30, 30};
-    DrawRectangleLinesEx(rec4, 1, RAYWHITE);
-    DrawText("O", 1504, 3, 30, WHITE);
-
-    DrawCircleLines(width / 2, height / 2, 100, bgColor);
-
-    DrawBall();
-    DrawPaddle();
-    DrawText("Score:", width / 1.2, height / 10, 50, bgColor);
-    DrawText(TextFormat("%i", player1Score), width / 1.2, height / 6, 60, bgColor);
-    DrawText("FPS:", width / 8, height / 10, 50, bgColor);
-    DrawText(TextFormat("%i", GetFPS()), width / 8, height / 6, 60, bgColor);
-    DrawLine(width / 2, 35, width / 2, height, bgColor);
-
-    if (isGameOver)
-    {
-      DrawRectangle(width / 2 - 200, height / 2 - 75, 400, 150, bgColor);
-      DrawText("Game Over", width / 2 - 100, height / 2 - 30, 40, RAYWHITE);
-      DrawText("Press Enter to Restart", width / 2 - 120, height / 2 + 20, 20, RAYWHITE);
-    }
-
-    DrawSavedScores();
-
-    EndDrawing();
 
     if (closeButtonClicked)
     {
