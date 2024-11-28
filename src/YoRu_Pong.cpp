@@ -1,4 +1,12 @@
 #include <raylib.h>
+#include "ball.h"
+#include "player.h"
+#include "fileHand.h"
+#include "menu.h"        // Include the menu header file
+#include "setting.h"     // Include the setting header file
+#include "theme.h"       // Include the theme header file
+#include "leaderboard.h" // Include the leaderboard header file
+#include "reset.h"       // Include the reset header file
 #include <fstream>
 using namespace std;
 
@@ -19,350 +27,6 @@ float paddleX, paddleY;
 float paddleWidth, paddleHeight;
 int paddleSpeed;
 
-void DrawBall()
-{
-  Color bgColor = {205, 25, 74, 255};
-  DrawCircle(ballX, ballY, ballRadius, bgColor);
-}
-
-void MoveBall()
-{
-  ballX += ballSpeedX;
-  ballY += ballSpeedY;
-  if (ballY + ballRadius >= GetScreenHeight() || ballY - ballRadius <= 30)
-  {
-    ballSpeedY *= -1;
-  }
-  if (ballX + ballRadius >= GetScreenWidth())
-  {
-    isGameOver = true;
-  }
-  else if (ballX - ballRadius <= 30)
-  {
-    player1Score++;
-    ballSpeedX *= -1;
-  }
-}
-
-void ResetBall()
-{
-  ballX = GetScreenWidth() / 2;
-  ballY = GetScreenHeight() / 2;
-  ballSpeedX = 5;
-  ballSpeedY = 5;
-}
-
-void DrawPaddle()
-{
-  Color bgColor = {205, 25, 74, 255};
-  DrawRectangle(paddleX, paddleY, paddleWidth, paddleHeight, bgColor);
-}
-
-void MovePaddle()
-{
-  if (IsKeyDown(KEY_UP) && paddleY > 45)
-  {
-    paddleY -= paddleSpeed;
-  }
-  else if (IsKeyDown(KEY_DOWN) && paddleY + paddleHeight + 10 < GetScreenHeight())
-  {
-    paddleY += paddleSpeed;
-  }
-}
-
-void ResetPaddle()
-{
-  paddleY = GetScreenHeight() / 2 - paddleHeight / 2;
-}
-
-void ResetGame()
-{
-  isGameOver = false;
-  scoreSaved = false;
-  player1Score = 0;
-  ResetBall();
-  ResetPaddle();
-}
-
-void SaveScore(int score)
-{
-  ofstream scoreFile("score.txt", ios::app);
-  if (scoreFile.is_open())
-  {
-    scoreFile << "Recent Score: " << score << endl;
-    scoreFile.close();
-  }
-  else
-  {
-    TraceLog(LOG_ERROR, "Unable to open score file");
-  }
-}
-
-void DrawSavedScores()
-{
-  ifstream scoreFile("score.txt");
-  int scores[100];
-  int scoreCount = 0;
-
-  if (scoreFile.is_open())
-  {
-    char line[256];
-    while (scoreFile.getline(line, sizeof(line)))
-    {
-      int i = 0;
-      while (line[i] != ':' && line[i] != '\0')
-      {
-        i++;
-      }
-      if (line[i] == ':')
-      {
-        int score = 0;
-        for (int j = i + 2; line[j] != '\0'; j++)
-        {
-          if (line[j] >= '0' && line[j] <= '9')
-          {
-            score = score * 10 + (line[j] - '0');
-          }
-        }
-        scores[scoreCount] = score;
-        scoreCount++;
-      }
-    }
-    scoreFile.close();
-  }
-  else
-  {
-    TraceLog(LOG_ERROR, "Unable to open score file");
-    return;
-  }
-
-  for (int i = 0; i < scoreCount - 1; i++)
-  {
-    for (int j = 0; j < scoreCount - i - 1; j++)
-    {
-      if (scores[j] < scores[j + 1])
-      {
-        int temp = scores[j];
-        scores[j] = scores[j + 1];
-        scores[j + 1] = temp;
-      }
-    }
-  }
-  Color bgColor = {205, 25, 74, 255};
-  // Draw a background for the leaderboard
-  // DrawRectangle(GetScreenWidth() / 2 - 150, GetScreenHeight() / 2 - 150, 300, 250, Fade(bgColor, 0.3f));
-
-  // Draw a border around the leaderboard
-  DrawRectangleLines(GetScreenWidth() / 2 - 400, GetScreenHeight() / 2 - 400, 800, 700, bgColor);
-
-  // Draw a title for the leaderboard
-  DrawText("Leaderboard", GetScreenWidth() / 2 - MeasureText("Leaderboard", 100) / 2, GetScreenHeight() / 2 - 360, 100, bgColor);
-
-  // Draw a decorative line under the title
-  DrawLine(GetScreenWidth() / 2 - 300, GetScreenHeight() / 2 - 260, GetScreenWidth() / 2 + 300, GetScreenHeight() / 2 - 260, bgColor);
-
-  // Draw the top 5 scores
-  DrawText("Top 5 Scores:", GetScreenWidth() / 2 - MeasureText("Top 5 Scores:", 80) / 2, GetScreenHeight() / 2 - 200, 80, bgColor);
-  for (int i = 0; i < (scoreCount < 5 ? scoreCount : 5); i++)
-  {
-    DrawText(TextFormat("%d", scores[i]), GetScreenWidth() / 2 - MeasureText(TextFormat("%d", scores[i]), 70) / 2, GetScreenHeight() / 2 - 100 + i * 80, 70, bgColor);
-  }
-}
-
-void DrawMenu()
-{
-  Color bgColor = {205, 25, 74, 255};
-  Vector2 mousePosition = GetMousePosition();
-  bool playButtonClicked = false;
-  bool leaderboardButtonClicked = false;
-  bool settingsButtonClicked = false;
-  bool exitButtonClicked = false;
-
-  Rectangle playButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 120), 300.0f, 70.0f};
-  Rectangle leaderBoard = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 30), 300.0f, 70.0f};
-  Rectangle settingsButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 60), 300.0f, 70.0f};
-  Rectangle exitButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 150), 300.0f, 70.0f};
-
-  if (CheckCollisionPointRec(mousePosition, playButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-  {
-    playButtonClicked = true;
-  }
-  if (CheckCollisionPointRec(mousePosition, leaderBoard) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-  {
-    leaderboardButtonClicked = true;
-  }
-  if (CheckCollisionPointRec(mousePosition, settingsButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-  {
-    settingsButtonClicked = true;
-  }
-  if (CheckCollisionPointRec(mousePosition, exitButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-  {
-    exitButtonClicked = true;
-  }
-
-  BeginDrawing();
-  ClearBackground(RAYWHITE);
-
-  DrawRectangleRec(playButton, bgColor);
-  DrawText("Play", playButton.x + playButton.width / 2 - MeasureText("Play", 30) / 2, playButton.y + playButton.height / 2 - 15, 30, RAYWHITE);
-  DrawRectangleRec(leaderBoard, bgColor);
-  DrawText("LeaderBoard", leaderBoard.x + leaderBoard.width / 2 - MeasureText("LeaderBoard", 30) / 2, leaderBoard.y + leaderBoard.height / 2 - 15, 30, RAYWHITE);
-  DrawRectangleRec(settingsButton, bgColor);
-  DrawText("Settings", settingsButton.x + settingsButton.width / 2 - MeasureText("Settings", 30) / 2, settingsButton.y + settingsButton.height / 2 - 15, 30, RAYWHITE);
-  DrawRectangleRec(exitButton, bgColor);
-  DrawText("Exit", exitButton.x + exitButton.width / 2 - MeasureText("Exit", 30) / 2, exitButton.y + exitButton.height / 2 - 15, 30, RAYWHITE);
-
-  EndDrawing();
-
-  if (playButtonClicked)
-  {
-    gameStarted = true;
-  }
-  if (leaderboardButtonClicked)
-  {
-    showLeaderboard = true;
-  }
-  if (settingsButtonClicked)
-  {
-    showSettings = true;
-  }
-  if (exitButtonClicked)
-  {
-    CloseWindow();
-  }
-}
-
-void DrawSettings()
-{
-  Color bgColor = {205, 25, 74, 255};
-  Vector2 mousePosition = GetMousePosition();
-  bool themeButtonClicked = false;
-  bool audioButtonClicked = false;
-  bool fpsLockButtonClicked = false;
-  bool moreButtonClicked = false;
-
-  Rectangle themeButton = {(float)(GetScreenWidth() / 2 - 150), 150.0f, 300.0f, 50.0f};
-  Rectangle audioButton = {(float)(GetScreenWidth() / 2 - 150), 220.0f, 300.0f, 50.0f};
-  Rectangle fpsLockButton = {(float)(GetScreenWidth() / 2 - 150), 290.0f, 300.0f, 50.0f};
-  Rectangle moreButton = {(float)(GetScreenWidth() / 2 - 150), 360.0f, 300.0f, 50.0f};
-
-  if (CheckCollisionPointRec(mousePosition, themeButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-  {
-    themeButtonClicked = true;
-  }
-  if (CheckCollisionPointRec(mousePosition, audioButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-  {
-    audioButtonClicked = true;
-  }
-  if (CheckCollisionPointRec(mousePosition, fpsLockButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-  {
-    fpsLockButtonClicked = true;
-  }
-  if (CheckCollisionPointRec(mousePosition, moreButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-  {
-    moreButtonClicked = true;
-  }
-
-  BeginDrawing();
-  ClearBackground(RAYWHITE);
-
-  DrawRectangleRec(themeButton, bgColor);
-  DrawText("Theme", themeButton.x + themeButton.width / 2 - MeasureText("Theme", 20) / 2, themeButton.y + themeButton.height / 2 - 10, 20, RAYWHITE);
-  DrawRectangleRec(audioButton, bgColor);
-  DrawText("Audio", audioButton.x + audioButton.width / 2 - MeasureText("Audio", 20) / 2, audioButton.y + audioButton.height / 2 - 10, 20, RAYWHITE);
-  DrawRectangleRec(fpsLockButton, bgColor);
-  DrawText("FPS Lock", fpsLockButton.x + fpsLockButton.width / 2 - MeasureText("FPS Lock", 20) / 2, fpsLockButton.y + fpsLockButton.height / 2 - 10, 20, RAYWHITE);
-  DrawRectangleRec(moreButton, bgColor);
-  DrawText("More", moreButton.x + moreButton.width / 2 - MeasureText("More", 20) / 2, moreButton.y + moreButton.height / 2 - 10, 20, RAYWHITE);
-  DrawText("Press BACKSPACE to go back", GetScreenWidth() / 2 - 100, GetScreenHeight() - 50, 20, DARKGRAY);
-
-  EndDrawing();
-  if (themeButtonClicked)
-  {
-    themePage = true;
-    showSettings = false;
-  }
-  if (IsKeyPressed(KEY_BACKSPACE))
-  {
-    showSettings = false;
-  }
-}
-
-void DrawThemePage()
-{
-  Color bgColor = {205, 25, 74, 255};
-  Vector2 mousePosition = GetMousePosition();
-  bool theme1Clicked = false;
-  bool theme2Clicked = false;
-  bool theme3Clicked = false;
-
-  Rectangle theme1Button = {(float)(GetScreenWidth() / 2 - 150), 150.0f, 300.0f, 50.0f};
-  Rectangle theme2Button = {(float)(GetScreenWidth() / 2 - 150), 220.0f, 300.0f, 50.0f};
-  Rectangle theme3Button = {(float)(GetScreenWidth() / 2 - 150), 290.0f, 300.0f, 50.0f};
-
-  if (CheckCollisionPointRec(mousePosition, theme1Button) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-  {
-    theme1Clicked = true;
-  }
-  if (CheckCollisionPointRec(mousePosition, theme2Button) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-  {
-    theme2Clicked = true;
-  }
-  if (CheckCollisionPointRec(mousePosition, theme3Button) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-  {
-    theme3Clicked = true;
-  }
-
-  BeginDrawing();
-  ClearBackground(RAYWHITE);
-
-  DrawRectangleRec(theme1Button, bgColor);
-  DrawText("Theme 1", theme1Button.x + theme1Button.width / 2 - MeasureText("Theme 1", 20) / 2, theme1Button.y + theme1Button.height / 2 - 10, 20, RAYWHITE);
-  DrawRectangleRec(theme2Button, bgColor);
-  DrawText("Theme 2", theme2Button.x + theme2Button.width / 2 - MeasureText("Theme 2", 20) / 2, theme2Button.y + theme2Button.height / 2 - 10, 20, RAYWHITE);
-  DrawRectangleRec(theme3Button, bgColor);
-  DrawText("Theme 3", theme3Button.x + theme3Button.width / 2 - MeasureText("Theme 3", 20) / 2, theme3Button.y + theme3Button.height / 2 - 10, 20, RAYWHITE);
-  DrawText("Press BACKSPACE to go back", GetScreenWidth() / 2 - 100, GetScreenHeight() - 50, 20, DARKGRAY);
-
-  EndDrawing();
-
-  if (theme1Clicked)
-  {
-    bgColor = {205, 25, 74, 255}; // Theme 1 color
-  }
-  if (theme2Clicked)
-  {
-    bgColor = {25, 205, 74, 255}; // Theme 2 color
-  }
-  if (theme3Clicked)
-  {
-    bgColor = {74, 25, 205, 255}; // Theme 3 color
-  }
-
-  if (IsKeyPressed(KEY_BACKSPACE))
-  {
-    themePage = false;
-    showSettings = true;
-  }
-}
-
-void DrawLeaderboard()
-{
-  BeginDrawing();
-  ClearBackground(RAYWHITE);
-
-  DrawSavedScores();
-
-  DrawText("Press BACKSPACE to go back", GetScreenWidth() / 2 - 100, GetScreenHeight() - 50, 20, DARKGRAY);
-
-  EndDrawing();
-
-  if (IsKeyPressed(KEY_BACKSPACE))
-  {
-    showLeaderboard = false;
-  }
-}
-
 int main()
 {
   int width = 1600;
@@ -370,19 +34,19 @@ int main()
   Color bgColor = {205, 25, 74, 255};
   SetConfigFlags(FLAG_WINDOW_UNDECORATED);
   InitWindow(width, height, "YoRu Pong");
-  SetTargetFPS(120);
+  SetTargetFPS(60);
 
   ballRadius = 20;
   ballX = width / 2;
   ballY = height / 2;
-  ballSpeedX = 5;
-  ballSpeedY = 5;
+  ballSpeedX = 10;
+  ballSpeedY = 10;
 
   paddleWidth = 25;
   paddleHeight = 120;
   paddleX = width - paddleWidth - 10;
   paddleY = height / 2 - paddleHeight / 2;
-  paddleSpeed = 6;
+  paddleSpeed = 12;
 
   bool drag = false;
   Vector2 dragOffset = {0, 0};
@@ -446,7 +110,7 @@ int main()
       }
       else
       {
-        DrawMenu();
+        DrawMenu(); // Call the DrawMenu function from menu.cpp
       }
     }
     else
@@ -482,7 +146,7 @@ int main()
 
       DrawRectangle(0, 0, 1600, 35, bgColor);
       DrawText("YoRu Pong", 50, 8, 20, RAYWHITE);
-      DrawText("V-2.2.1.", 200, 8, 20, RAYWHITE);
+      DrawText("V-3.0.1.", 200, 8, 20, RAYWHITE);
 
       Rectangle rec = {0, 0, 1600, 900};
       DrawRectangleLinesEx(rec, 5, bgColor);
@@ -532,20 +196,20 @@ int main()
     }
     if (maximizeButtonClicked || IsKeyPressed(KEY_F11))
     {
-      if (IsWindowFullscreen())
-      {
-        SetTargetFPS(120);
-        ballSpeedX = 5;
-        ballSpeedY = 5;
-        paddleSpeed = 6;
-      }
-      else if (!IsWindowFullscreen())
-      {
-        SetTargetFPS(60);
-        ballSpeedX = 11;
-        ballSpeedY = 11;
-        paddleSpeed = 13;
-      }
+      // if (IsWindowFullscreen())
+      // {
+      //   SetTargetFPS(120);
+      //   ballSpeedX = 5;
+      //   ballSpeedY = 5;
+      //   paddleSpeed = 6;
+      // }
+      // else if (!IsWindowFullscreen())
+      // {
+      //   SetTargetFPS(60);
+      //   ballSpeedX = 11;
+      //   ballSpeedY = 11;
+      //   paddleSpeed = 13;
+      // }
       ToggleFullscreen();
     }
   }
