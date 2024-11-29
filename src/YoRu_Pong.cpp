@@ -1,3 +1,4 @@
+#include <math.h>
 #include <raylib.h>
 #include "ball.h"
 #include "player.h"
@@ -8,6 +9,10 @@
 #include "leaderboard.h" // Include the leaderboard header file
 #include "reset.h"       // Include the reset header file
 #include <fstream>
+using namespace std;
+
+const int MAX_FRAME_DELAY = 60;
+const int MIN_FRAME_DELAY = 1;
 using namespace std;
 
 int player1Score = 0;
@@ -27,11 +32,63 @@ float paddleX, paddleY;
 float paddleWidth, paddleHeight;
 int paddleSpeed;
 
+void UpdateAnimationFrame(Image &imScarfyAnim, Texture2D &texScarfyAnim, int &currentAnimFrame, int animFrames, int &frameCounter, int frameDelay)
+{
+  frameCounter++;
+  if (frameCounter >= frameDelay)
+  {
+    currentAnimFrame++;
+    if (currentAnimFrame >= animFrames)
+      currentAnimFrame = 0;
+
+    unsigned int nextFrameDataOffset = imScarfyAnim.width * imScarfyAnim.height * 4 * currentAnimFrame;
+    UpdateTexture(texScarfyAnim, ((unsigned char *)imScarfyAnim.data) + nextFrameDataOffset);
+
+    frameCounter = 0;
+  }
+}
+
+void HandleInput(int &frameDelay, int screenWidth, int screenHeight)
+{
+  if (IsKeyPressed(KEY_RIGHT))
+    frameDelay++;
+  else if (IsKeyPressed(KEY_LEFT))
+    frameDelay--;
+
+  if (frameDelay > MAX_FRAME_DELAY)
+    frameDelay = MAX_FRAME_DELAY;
+  else if (frameDelay < MIN_FRAME_DELAY)
+    frameDelay = MIN_FRAME_DELAY;
+
+  if (IsKeyPressed(KEY_F11))
+  {
+    if (IsWindowFullscreen())
+    {
+      ToggleFullscreen();
+      SetWindowSize(screenWidth, screenHeight);
+    }
+    else
+    {
+      ToggleFullscreen();
+    }
+  }
+}
+
+void DrawFrame(Texture2D &texScarfyAnim, Image &imScarfyAnim)
+{
+  ClearBackground(RAYWHITE);
+
+  float scale = fmaxf((float)GetScreenWidth() / imScarfyAnim.width, (float)GetScreenHeight() / imScarfyAnim.height);
+  DrawTextureEx(texScarfyAnim, (Vector2){0, 0}, 0.0f, scale, WHITE);
+}
+
 int main()
 {
-  int width = 1600;
+  const int width = 1600;
   const int height = 900;
+
   Color bgColor = {205, 25, 74, 255};
+  // Color trans = {0, 0, 0, 0};
   SetConfigFlags(FLAG_WINDOW_UNDECORATED);
   InitWindow(width, height, "YoRu Pong");
   SetTargetFPS(60);
@@ -50,6 +107,14 @@ int main()
 
   bool drag = false;
   Vector2 dragOffset = {0, 0};
+
+  // Animation variables
+  int animFrames = 0;
+  Image imScarfyAnim = LoadImageAnim("Graphics/9.gif", &animFrames);
+  Texture2D texScarfyAnim = LoadTextureFromImage(imScarfyAnim);
+  int currentAnimFrame = 0;
+  int frameDelay = 8;
+  int frameCounter = 0;
 
   while (!WindowShouldClose())
   {
@@ -94,6 +159,10 @@ int main()
       SetWindowPosition(GetWindowPosition().x + delta.x, GetWindowPosition().y + delta.y);
     }
 
+    // Update animation frame and handle input
+    UpdateAnimationFrame(imScarfyAnim, texScarfyAnim, currentAnimFrame, animFrames, frameCounter, frameDelay);
+    HandleInput(frameDelay, width, height);
+
     if (!gameStarted)
     {
       if (showLeaderboard)
@@ -137,14 +206,24 @@ int main()
       if (CheckCollisionCircleRec({ballX, ballY}, ballRadius, {paddleX, paddleY, paddleWidth, paddleHeight}))
       {
         ballSpeedX *= -1;
+        player1Score++;
+        if (player1Score % 5 == 0)
+        {
+          paddleHeight *= 0.9;
+        }
+        paddleSpeed *= 1.02;
+        ballSpeedX *= 1.08;
+        ballSpeedY *= 1.05;
       }
-      ClearBackground(RAYWHITE);
+
+      // Draw the frame with the animated background
 
       BeginDrawing();
+      DrawFrame(texScarfyAnim, imScarfyAnim);
 
-      ClearBackground(RAYWHITE);
-
-      DrawRectangle(0, 0, 1600, 35, bgColor);
+      // DrawRectangle(0, 0, 1600, 35, bgColor);
+      Rectangle rec0 = {0, 0, 1600, 35};
+      DrawRectangleLinesEx(rec0, 5, bgColor);
       DrawText("YoRu Pong", 50, 8, 20, RAYWHITE);
       DrawText("V-3.0.1.", 200, 8, 20, RAYWHITE);
 
@@ -166,7 +245,7 @@ int main()
       DrawRectangleLinesEx(rec4, 1, RAYWHITE);
       DrawText("O", 1504, 3, 30, WHITE);
 
-      DrawCircleLines(width / 2, height / 2, 100, bgColor);
+      // DrawCircleLines(width / 2, height / 2, 100, bgColor);
 
       DrawBall();
       DrawPaddle();
@@ -174,7 +253,7 @@ int main()
       DrawText(TextFormat("%i", player1Score), width / 1.2, height / 6, 60, bgColor);
       DrawText("FPS:", width / 8, height / 10, 50, bgColor);
       DrawText(TextFormat("%i", GetFPS()), width / 8, height / 6, 60, bgColor);
-      DrawLine(width / 2, 35, width / 2, height, bgColor);
+      // DrawLine(width / 2, 35, width / 2, height, bgColor);
 
       if (isGameOver)
       {
@@ -196,24 +275,12 @@ int main()
     }
     if (maximizeButtonClicked || IsKeyPressed(KEY_F11))
     {
-      // if (IsWindowFullscreen())
-      // {
-      //   SetTargetFPS(120);
-      //   ballSpeedX = 5;
-      //   ballSpeedY = 5;
-      //   paddleSpeed = 6;
-      // }
-      // else if (!IsWindowFullscreen())
-      // {
-      //   SetTargetFPS(60);
-      //   ballSpeedX = 11;
-      //   ballSpeedY = 11;
-      //   paddleSpeed = 13;
-      // }
       ToggleFullscreen();
     }
   }
 
+  UnloadTexture(texScarfyAnim);
+  UnloadImage(imScarfyAnim);
   CloseWindow();
   return 0;
 }

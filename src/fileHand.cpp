@@ -20,12 +20,12 @@ void SaveScore(int score)
 void DrawSavedScores()
 {
   ifstream scoreFile("score.txt");
-  int scores[100];
+  int scores[1000];
   int scoreCount = 0;
 
   if (scoreFile.is_open())
   {
-    char line[256];
+    char line[1000];
     while (scoreFile.getline(line, sizeof(line)))
     {
       int i = 0;
