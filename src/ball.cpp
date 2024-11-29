@@ -32,14 +32,6 @@ void MoveBall()
   }
   else if (ballX - ballRadius <= 30)
   {
-    player1Score++;
-    if (player1Score % 5 == 0)
-    {
-      paddleHeight *= 0.9;
-    }
-    paddleSpeed *= 1.02;
-    ballSpeedX *= 1.08;
-    ballSpeedY *= 1.05;
     ballSpeedX *= -1;
   }
 }
