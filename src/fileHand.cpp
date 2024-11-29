@@ -1,4 +1,4 @@
-#include <raylib.h>
+#include "raylib.h"
 #include "fileHand.h"
 #include <fstream>
 
@@ -36,15 +36,24 @@ void DrawSavedScores()
       if (line[i] == ':')
       {
         int score = 0;
+        bool validScore = true;
         for (int j = i + 2; line[j] != '\0'; j++)
         {
           if (line[j] >= '0' && line[j] <= '9')
           {
             score = score * 10 + (line[j] - '0');
           }
+          else
+          {
+            validScore = false;
+            break;
+          }
         }
-        scores[scoreCount] = score;
-        scoreCount++;
+        if (validScore)
+        {
+          scores[scoreCount] = score;
+          scoreCount++;
+        }
       }
     }
     scoreFile.close();
