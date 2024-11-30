@@ -40,7 +40,9 @@ int main()
   const int height = 900;
 
   Color bgColor = {205, 25, 74, 255};
-  // Color trans = {0, 0, 0, 0};
+  Color trans = {0, 0, 0, 0};
+  Color tan = {0, 0, 0, 150};
+  Color tanN = {255, 255, 255, 150};
   SetConfigFlags(FLAG_WINDOW_UNDECORATED);
   InitWindow(width, height, "YoRu Pong");
   SetTargetFPS(60);
@@ -62,7 +64,7 @@ int main()
 
   // Animation variables
   int animFrames = 0;
-  Image imScarfyAnim = LoadImageAnim("Graphics/23.gif", &animFrames);
+  Image imScarfyAnim = LoadImageAnim("Graphics/17.gif", &animFrames);
   Texture2D texScarfyAnim = LoadTextureFromImage(imScarfyAnim);
   int currentAnimFrame = 0;
   int frameDelay = 8;
@@ -175,27 +177,28 @@ int main()
 
       // DrawRectangle(0, 0, 1600, 35, bgColor);
       Rectangle rec0 = {0, 0, 1600, 35};
-      DrawRectangleLinesEx(rec0, 5, bgColor);
-      DrawText("YoRu Pong", 50, 8, 20, RAYWHITE);
-      DrawText("V-3.0.1.", 200, 8, 20, RAYWHITE);
+      DrawRectangleRec(rec0, tan);
 
+      DrawText("YoRu Pong", 50, 10, 18, RAYWHITE);
+      DrawText("V-3.0.1.", 200, 10, 18, RAYWHITE);
+
+      Rectangle rec1 = {0, 30, 30, 900};
+      DrawRectangleRec(rec1, tan);
+      DrawLineEx({0, 35}, {1600, 35}, 1, tanN);
       Rectangle rec = {0, 0, 1600, 900};
       DrawRectangleLinesEx(rec, 5, bgColor);
 
-      Rectangle rec1 = {0, 30, 30, 900};
-      DrawRectangleLinesEx(rec1, 5, bgColor);
-
       Rectangle rec2 = {1568, 2, 30, 30};
-      DrawRectangleLinesEx(rec2, 1, RAYWHITE);
-      DrawText("X", 1574, 3, 30, WHITE);
+      DrawRectangleLinesEx(rec2, 1, trans);
+      DrawText("X", 1574 - 5, 6, 30, WHITE);
 
       Rectangle rec3 = {1533, 2, 30, 30};
-      DrawRectangleLinesEx(rec3, 1, RAYWHITE);
-      DrawText("-", 1542, 4, 30, WHITE);
+      DrawRectangleLinesEx(rec3, 1, trans);
+      DrawText("-", 1542 - 5, 7, 30, WHITE);
 
       Rectangle rec4 = {1498, 2, 30, 30};
-      DrawRectangleLinesEx(rec4, 1, RAYWHITE);
-      DrawText("O", 1504, 3, 30, WHITE);
+      DrawRectangleLinesEx(rec4, 1, trans);
+      DrawText("O", 1504 - 5, 6, 30, WHITE);
 
       // DrawCircleLines(width / 2, height / 2, 100, bgColor);
 
