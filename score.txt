@@ -31,3 +31,4 @@ sdfsf: 1
 nigro: 22
 Yura: 1
 Yura: 12
+YoRu: 10

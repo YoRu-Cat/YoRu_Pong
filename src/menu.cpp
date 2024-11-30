@@ -11,7 +11,7 @@ extern char nam[MAX_INPUT_CHARS + 1];
 
 char name[MAX_INPUT_CHARS + 1] = "\0";
 int letterCount = 0;
-Rectangle textBox = {GetScreenWidth() / 2.0f - 100, GetScreenHeight() / 2.0f + 220, 225, 50}; // Adjusted y coordinate
+Rectangle textBox = {GetScreenWidth() / 2.0f - 150, GetScreenHeight() / 2.0f + 150, 300, 70}; // Adjusted y coordinate and size
 bool mouseOnText = false;
 int framesCounter = 0;
 
@@ -96,10 +96,15 @@ void DrawMenu()
   bool settingsButtonClicked = false;
   bool exitButtonClicked = false;
 
-  Rectangle playButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 140), 300.0f, 70.0f};    // Adjusted y coordinate
-  Rectangle leaderBoard = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 50), 300.0f, 70.0f};    // Adjusted y coordinate
-  Rectangle settingsButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 30), 300.0f, 70.0f}; // Adjusted y coordinate
-  Rectangle exitButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 120), 300.0f, 70.0f};    // Adjusted y coordinate
+  float buttonWidth = 300.0f;
+  float buttonHeight = 70.0f;
+  float buttonSpacing = 16.0f;
+  float startY = GetScreenHeight() / 2 - (buttonHeight * 2 + buttonSpacing * 1.5f);
+
+  Rectangle playButton = {(float)(GetScreenWidth() / 2 - buttonWidth / 2), startY, buttonWidth, buttonHeight};
+  Rectangle leaderBoard = {(float)(GetScreenWidth() / 2 - buttonWidth / 2), startY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight};
+  Rectangle settingsButton = {(float)(GetScreenWidth() / 2 - buttonWidth / 2), startY + (buttonHeight + buttonSpacing) * 2, buttonWidth, buttonHeight};
+  Rectangle exitButton = {(float)(GetScreenWidth() / 2 - buttonWidth / 2), startY + (buttonHeight + buttonSpacing) * 3, buttonWidth, buttonHeight};
 
   if (CheckCollisionPointRec(mousePosition, playButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && letterCount > 3)
   {
@@ -136,7 +141,7 @@ void DrawMenu()
   DrawRectangleRec(exitButton, bgColor);
   DrawText("Exit", exitButton.x + exitButton.width / 2 - MeasureText("Exit", 30) / 2, exitButton.y + exitButton.height / 2 - 15, 30, RAYWHITE);
 
-  EndDrawing();
+    EndDrawing();
 
   if (playButtonClicked)
   {
