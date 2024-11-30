@@ -10,7 +10,7 @@ extern bool themePage;
 
 char name[MAX_INPUT_CHARS + 1] = "\0";
 int letterCount = 0;
-Rectangle textBox = {GetScreenWidth() / 2.0f - 100, GetScreenHeight() / 2.0f + 240, 225, 50};
+Rectangle textBox = {GetScreenWidth() / 2.0f - 100, GetScreenHeight() / 2.0f + 220, 225, 50}; // Adjusted y coordinate
 bool mouseOnText = false;
 int framesCounter = 0;
 
@@ -70,7 +70,7 @@ void DrawTextBox()
     DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, DARKGRAY);
 
   DrawText(name, (int)textBox.x + 5, (int)textBox.y + 8, 40, MAROON);
-  DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, MAX_INPUT_CHARS), GetScreenWidth() / 2 - MeasureText(TextFormat("INPUT CHARS: %i/%i", letterCount, MAX_INPUT_CHARS), 20) / 2, GetScreenHeight() / 2 + 300, 20, DARKGRAY);
+  DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, MAX_INPUT_CHARS), GetScreenWidth() / 2 - MeasureText(TextFormat("INPUT CHARS: %i/%i", letterCount, MAX_INPUT_CHARS), 20) / 2, GetScreenHeight() / 2 + 280, 20, DARKGRAY); // Adjusted y coordinate
 
   if (mouseOnText)
   {
@@ -80,7 +80,7 @@ void DrawTextBox()
         DrawText("_", (int)textBox.x + 8 + MeasureText(name, 40), (int)textBox.y + 12, 40, MAROON);
     }
     else
-      DrawText("Press BACKSPACE to delete chars...", GetScreenWidth() / 2 - MeasureText("Press BACKSPACE to delete chars...", 20) / 2, GetScreenHeight() / 2 + 350, 20, GRAY);
+      DrawText("Press BACKSPACE to delete chars...", GetScreenWidth() / 2 - MeasureText("Press BACKSPACE to delete chars...", 20) / 2, GetScreenHeight() / 2 + 330, 20, GRAY); // Adjusted y coordinate
   }
 }
 
@@ -95,14 +95,18 @@ void DrawMenu()
   bool settingsButtonClicked = false;
   bool exitButtonClicked = false;
 
-  Rectangle playButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 120), 300.0f, 70.0f};
-  Rectangle leaderBoard = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 30), 300.0f, 70.0f};
-  Rectangle settingsButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 60), 300.0f, 70.0f};
-  Rectangle exitButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 150), 300.0f, 70.0f};
+  Rectangle playButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 140), 300.0f, 70.0f};    // Adjusted y coordinate
+  Rectangle leaderBoard = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 - 50), 300.0f, 70.0f};    // Adjusted y coordinate
+  Rectangle settingsButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 30), 300.0f, 70.0f}; // Adjusted y coordinate
+  Rectangle exitButton = {(float)(GetScreenWidth() / 2 - 150), (float)(GetScreenHeight() / 2 + 120), 300.0f, 70.0f};    // Adjusted y coordinate
 
-  if (CheckCollisionPointRec(mousePosition, playButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  if (CheckCollisionPointRec(mousePosition, playButton) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && letterCount > 3)
   {
     playButtonClicked = true;
+  }
+  else
+  {
+    DrawText("Enter your name to play", GetScreenWidth() / 2 - MeasureText("Enter your name to play", 20) / 2, GetScreenHeight() / 2 + 380, 20, DARKGRAY); // Adjusted y coordinate
   }
   if (CheckCollisionPointRec(mousePosition, leaderBoard) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
   {

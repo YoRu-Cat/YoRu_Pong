@@ -64,7 +64,7 @@ int main()
 
   // Animation variables
   int animFrames = 0;
-  Image imScarfyAnim = LoadImageAnim("Graphics/17.gif", &animFrames);
+  Image imScarfyAnim = LoadImageAnim("Graphics/15.gif", &animFrames);
   Texture2D texScarfyAnim = LoadTextureFromImage(imScarfyAnim);
   int currentAnimFrame = 0;
   int frameDelay = 8;
@@ -182,7 +182,7 @@ int main()
       DrawText("YoRu Pong", 50, 10, 18, RAYWHITE);
       DrawText("V-3.0.1.", 200, 10, 18, RAYWHITE);
 
-      Rectangle rec1 = {0, 30, 30, 900};
+      Rectangle rec1 = {0, 35, 30, 900};
       DrawRectangleRec(rec1, tan);
       DrawLineEx({0, 35}, {1600, 35}, 1, tanN);
       Rectangle rec = {0, 0, 1600, 900};
