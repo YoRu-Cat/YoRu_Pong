@@ -3,6 +3,8 @@
 #include "ball.h"
 #include "player.h"
 #include "fileHand.h"
+#include "buttons.h"
+#include "anim.h"
 #include "menu.h"        // Include the menu header file
 #include "setting.h"     // Include the setting header file
 #include "theme.h"       // Include the theme header file
@@ -32,56 +34,6 @@ float paddleX, paddleY;
 float paddleWidth, paddleHeight;
 int paddleSpeed;
 
-void UpdateAnimationFrame(Image &imScarfyAnim, Texture2D &texScarfyAnim, int &currentAnimFrame, int animFrames, int &frameCounter, int frameDelay)
-{
-  frameCounter++;
-  if (frameCounter >= frameDelay)
-  {
-    currentAnimFrame++;
-    if (currentAnimFrame >= animFrames)
-      currentAnimFrame = 0;
-
-    unsigned int nextFrameDataOffset = imScarfyAnim.width * imScarfyAnim.height * 4 * currentAnimFrame;
-    UpdateTexture(texScarfyAnim, ((unsigned char *)imScarfyAnim.data) + nextFrameDataOffset);
-
-    frameCounter = 0;
-  }
-}
-
-void HandleInput(int &frameDelay, int screenWidth, int screenHeight)
-{
-  if (IsKeyPressed(KEY_RIGHT))
-    frameDelay++;
-  else if (IsKeyPressed(KEY_LEFT))
-    frameDelay--;
-
-  if (frameDelay > MAX_FRAME_DELAY)
-    frameDelay = MAX_FRAME_DELAY;
-  else if (frameDelay < MIN_FRAME_DELAY)
-    frameDelay = MIN_FRAME_DELAY;
-
-  if (IsKeyPressed(KEY_F11))
-  {
-    if (IsWindowFullscreen())
-    {
-      ToggleFullscreen();
-      SetWindowSize(screenWidth, screenHeight);
-    }
-    else
-    {
-      ToggleFullscreen();
-    }
-  }
-}
-
-void DrawFrame(Texture2D &texScarfyAnim, Image &imScarfyAnim)
-{
-  ClearBackground(RAYWHITE);
-
-  float scale = fmaxf((float)GetScreenWidth() / imScarfyAnim.width, (float)GetScreenHeight() / imScarfyAnim.height);
-  DrawTextureEx(texScarfyAnim, (Vector2){0, 0}, 0.0f, scale, WHITE);
-}
-
 int main()
 {
   const int width = 1600;
@@ -110,7 +62,7 @@ int main()
 
   // Animation variables
   int animFrames = 0;
-  Image imScarfyAnim = LoadImageAnim("Graphics/9.gif", &animFrames);
+  Image imScarfyAnim = LoadImageAnim("Graphics/23.gif", &animFrames);
   Texture2D texScarfyAnim = LoadTextureFromImage(imScarfyAnim);
   int currentAnimFrame = 0;
   int frameDelay = 8;
