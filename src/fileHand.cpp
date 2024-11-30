@@ -1,14 +1,24 @@
 #include "raylib.h"
 #include "fileHand.h"
 #include <fstream>
+#define MAX_INPUT_CHARS 8
+
+extern char nam[MAX_INPUT_CHARS + 1];
 
 using namespace std;
+
+struct ScoreEntry
+{
+  char name[MAX_INPUT_CHARS + 1];
+  int score;
+};
+
 void SaveScore(int score)
 {
   ofstream scoreFile("score.txt", ios::app);
   if (scoreFile.is_open())
   {
-    scoreFile << "Recent Score: " << score << endl;
+    scoreFile << nam << ": " << score << endl;
     scoreFile.close();
   }
   else
@@ -20,7 +30,7 @@ void SaveScore(int score)
 void DrawSavedScores()
 {
   ifstream scoreFile("score.txt");
-  int scores[1000];
+  ScoreEntry scores[1000];
   int scoreCount = 0;
 
   if (scoreFile.is_open())
@@ -35,6 +45,7 @@ void DrawSavedScores()
       }
       if (line[i] == ':')
       {
+        line[i] = '\0'; // Null-terminate the name
         int score = 0;
         bool validScore = true;
         for (int j = i + 2; line[j] != '\0'; j++)
@@ -51,7 +62,14 @@ void DrawSavedScores()
         }
         if (validScore)
         {
-          scores[scoreCount] = score;
+          for (int k = 0; k < MAX_INPUT_CHARS; k++)
+          {
+            scores[scoreCount].name[k] = line[k];
+            if (line[k] == '\0')
+              break;
+          }
+          scores[scoreCount].name[MAX_INPUT_CHARS] = '\0'; // Ensure null-termination
+          scores[scoreCount].score = score;
           scoreCount++;
         }
       }
@@ -68,9 +86,9 @@ void DrawSavedScores()
   {
     for (int j = 0; j < scoreCount - i - 1; j++)
     {
-      if (scores[j] < scores[j + 1])
+      if (scores[j].score < scores[j + 1].score)
       {
-        int temp = scores[j];
+        ScoreEntry temp = scores[j];
         scores[j] = scores[j + 1];
         scores[j + 1] = temp;
       }
@@ -93,6 +111,6 @@ void DrawSavedScores()
   DrawText("Top 5 Scores:", GetScreenWidth() / 2 - MeasureText("Top 5 Scores:", 80) / 2, GetScreenHeight() / 2 - 200, 80, bgColor);
   for (int i = 0; i < (scoreCount < 5 ? scoreCount : 5); i++)
   {
-    DrawText(TextFormat("%d", scores[i]), GetScreenWidth() / 2 - MeasureText(TextFormat("%d", scores[i]), 70) / 2, GetScreenHeight() / 2 - 100 + i * 80, 70, bgColor);
+    DrawText(TextFormat("%s: %d", scores[i].name, scores[i].score), GetScreenWidth() / 2 - MeasureText(TextFormat("%s: %d", scores[i].name, scores[i].score), 70) / 2, GetScreenHeight() / 2 - 100 + i * 80, 70, bgColor);
   }
 }

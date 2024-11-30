@@ -11,6 +11,8 @@
 #include "leaderboard.h" // Include the leaderboard header file
 #include "reset.h"       // Include the reset header file
 #include <fstream>
+
+#define MAX_INPUT_CHARS 8
 using namespace std;
 
 const int MAX_FRAME_DELAY = 60;
@@ -33,6 +35,7 @@ int ballRadius;
 float paddleX, paddleY;
 float paddleWidth, paddleHeight;
 int paddleSpeed;
+char nam[MAX_INPUT_CHARS + 1] = "\0";
 
 int main()
 {
@@ -64,7 +67,7 @@ int main()
 
   // Animation variables
   int animFrames = 0;
-  Image imScarfyAnim = LoadImageAnim("Graphics/15.gif", &animFrames);
+  Image imScarfyAnim = LoadImageAnim("Graphics/19.gif", &animFrames);
   Texture2D texScarfyAnim = LoadTextureFromImage(imScarfyAnim);
   int currentAnimFrame = 0;
   int frameDelay = 8;

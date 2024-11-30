@@ -7,6 +7,7 @@ extern bool gameStarted;
 extern bool showLeaderboard;
 extern bool showSettings;
 extern bool themePage;
+extern char nam[MAX_INPUT_CHARS + 1];
 
 char name[MAX_INPUT_CHARS + 1] = "\0";
 int letterCount = 0;
@@ -139,6 +140,10 @@ void DrawMenu()
 
   if (playButtonClicked)
   {
+    for (int i = 0; i <= letterCount; i++)
+    {
+      nam[i] = name[i];
+    }
     gameStarted = true;
   }
   if (leaderboardButtonClicked)
