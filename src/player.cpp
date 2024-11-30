@@ -1,5 +1,5 @@
 #include <raylib.h>
-#include "player.h"
+#include "YoRu.h"
 
 // External variable declarations
 extern float paddleX, paddleY;
@@ -9,7 +9,10 @@ extern int paddleSpeed;
 void DrawPaddle()
 {
   Color bgColor = {205, 25, 74, 255};
-  DrawRectangle(paddleX, paddleY, paddleWidth, paddleHeight, bgColor);
+  float roundness = 0.5f; // Roundness factor (0.0f to 1.0f)
+
+  // Draw the paddle
+  DrawRectangleRounded((Rectangle){paddleX, paddleY, paddleWidth, paddleHeight}, roundness, 16, bgColor);
 }
 
 void MovePaddle()

@@ -1,5 +1,5 @@
 #include <raylib.h>
-#include "menu.h"
+#include "YoRu.h"
 
 #define MAX_INPUT_CHARS 8
 
@@ -107,7 +107,7 @@ void DrawMenu()
   }
   else
   {
-    DrawText("Enter your name to play", GetScreenWidth() / 2 - MeasureText("Enter your name to play", 20) / 2, GetScreenHeight() / 2 + 380, 20, DARKGRAY); // Adjusted y coordinate
+    DrawText("Enter your name to play (atlest 4 chars)", GetScreenWidth() / 2 - MeasureText("Enter your name to play (atlest 4 chars)", 20) / 2, GetScreenHeight() / 2 + 380, 20, DARKGRAY); // Adjusted y coordinate
   }
   if (CheckCollisionPointRec(mousePosition, leaderBoard) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
   {

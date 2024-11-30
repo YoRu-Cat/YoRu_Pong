@@ -1,5 +1,5 @@
 #include "raylib.h"
-#include "fileHand.h"
+#include "YoRu.h"
 #include <fstream>
 #define MAX_INPUT_CHARS 8
 
@@ -25,6 +25,20 @@ void SaveScore(int score)
   {
     TraceLog(LOG_ERROR, "Unable to open score file");
   }
+}
+
+Texture2D background;
+
+void LoadResources()
+{
+  // Load the background image once
+  background = LoadTexture("Graphics/17.gif");
+}
+
+void UnloadResources()
+{
+  // Unload the background image when the program exits
+  UnloadTexture(background);
 }
 
 void DrawSavedScores()
@@ -94,12 +108,18 @@ void DrawSavedScores()
       }
     }
   }
+
+  // Draw the background image
+  DrawTexture(background, 0, 0, WHITE);
+
   Color bgColor = {205, 25, 74, 255};
-  // Draw a background for the leaderboard
-  // DrawRectangle(GetScreenWidth() / 2 - 150, GetScreenHeight() / 2 - 150, 300, 250, Fade(bgColor, 0.3f));
+  Color shadeColor = {0, 0, 0, 100}; // Lighter shade for the background
+
+  // Draw a background for the leaderboard with shade
+  DrawRectangle(GetScreenWidth() / 2 - 400, GetScreenHeight() / 2 - 400, 800, 700, Fade(shadeColor, 0.3f));
 
   // Draw a border around the leaderboard
-  DrawRectangleLines(GetScreenWidth() / 2 - 400, GetScreenHeight() / 2 - 400, 800, 700, bgColor);
+  DrawRectangleLinesEx({static_cast<float>(GetScreenWidth() / 2 - 400), static_cast<float>(GetScreenHeight() / 2 - 400), 800.0f, 700.0f}, 5.0f, bgColor);
 
   // Draw a title for the leaderboard
   DrawText("Leaderboard", GetScreenWidth() / 2 - MeasureText("Leaderboard", 100) / 2, GetScreenHeight() / 2 - 360, 100, bgColor);

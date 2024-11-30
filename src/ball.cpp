@@ -1,6 +1,5 @@
 #include <raylib.h>
-#include "ball.h"
-#include "player.h"
+#include "yoru.h"
 
 // External variable declarations
 extern float ballX, ballY;
@@ -15,6 +14,13 @@ extern int paddleSpeed;
 void DrawBall()
 {
   Color bgColor = {205, 25, 74, 255};
+  // Single color for the ball
+  Color shadowColor = {0, 0, 0, 100};
+
+  // Draw shadow
+  DrawCircle(ballX + 5, ballY + 5, ballRadius, shadowColor);
+
+  // Draw ball with single color
   DrawCircle(ballX, ballY, ballRadius, bgColor);
 }
 

@@ -1,5 +1,5 @@
 #include <raylib.h>
-#include "setting.h"
+#include "YoRu.h"
 
 extern bool showSettings;
 extern bool themePage;

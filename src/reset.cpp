@@ -1,6 +1,4 @@
-#include "reset.h"
-#include "ball.h"
-#include "player.h"
+#include "YoRu.h"
 
 extern int player1Score;
 extern bool isGameOver;

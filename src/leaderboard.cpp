@@ -1,6 +1,5 @@
-#include "leaderboard.h"
+#include "YoRu.h"
 #include <raylib.h>
-#include "fileHand.h"
 
 extern bool showLeaderboard;
 

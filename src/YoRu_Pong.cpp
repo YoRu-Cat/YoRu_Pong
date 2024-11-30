@@ -1,15 +1,6 @@
 #include <math.h>
 #include <raylib.h>
-#include "ball.h"
-#include "player.h"
-#include "fileHand.h"
-#include "buttons.h"
-#include "anim.h"
-#include "menu.h"        // Include the menu header file
-#include "setting.h"     // Include the setting header file
-#include "theme.h"       // Include the theme header file
-#include "leaderboard.h" // Include the leaderboard header file
-#include "reset.h"       // Include the reset header file
+#include "YoRu.h" // Heder file for all the functions
 #include <fstream>
 
 #define MAX_INPUT_CHARS 8
@@ -67,7 +58,12 @@ int main()
 
   // Animation variables
   int animFrames = 0;
-  Image imScarfyAnim = LoadImageAnim("Graphics/19.gif", &animFrames);
+  Image imScarfyAnim = LoadImageAnim("Graphics/5.gif", &animFrames);
+  // Can change the number of frames per second by changing the frame delay
+  // The higher the frame delay, the slower the animation
+  // The lower the frame delay, the faster the animation
+  // Graphics folder contains the animated background
+  // The background is a gif file. Changing it in above sring it will change the background
   Texture2D texScarfyAnim = LoadTextureFromImage(imScarfyAnim);
   int currentAnimFrame = 0;
   int frameDelay = 8;
@@ -160,17 +156,21 @@ int main()
         ResetGame();
       }
 
-      if (CheckCollisionCircleRec({ballX, ballY}, ballRadius, {paddleX, paddleY, paddleWidth, paddleHeight}))
+      if (ballX + ballRadius >= paddleX && ballX - ballRadius <= paddleX + paddleWidth &&
+          ballY + ballRadius >= paddleY && ballY - ballRadius <= paddleY + paddleHeight)
       {
-        ballSpeedX *= -1;
-        player1Score++;
-        if (player1Score % 5 == 0)
+        if (ballSpeedX > 0 && ballX - ballRadius < paddleX) // Ensure ball is moving towards the paddle
         {
-          paddleHeight *= 0.9;
+          ballSpeedX *= -1;
+          player1Score++;
+          if (player1Score % 5 == 0)
+          {
+            paddleHeight *= 0.9;
+          }
+          paddleSpeed *= 1.02;
+          ballSpeedX *= 1.08;
+          ballSpeedY *= 1.05;
         }
-        paddleSpeed *= 1.02;
-        ballSpeedX *= 1.08;
-        ballSpeedY *= 1.05;
       }
 
       // Draw the frame with the animated background
@@ -183,7 +183,7 @@ int main()
       DrawRectangleRec(rec0, tan);
 
       DrawText("YoRu Pong", 50, 10, 18, RAYWHITE);
-      DrawText("V-3.0.1.", 200, 10, 18, RAYWHITE);
+      DrawText("V-0.6.9.", 200, 10, 18, RAYWHITE);
 
       Rectangle rec1 = {0, 35, 30, 900};
       DrawRectangleRec(rec1, tan);
@@ -207,10 +207,19 @@ int main()
 
       DrawBall();
       DrawPaddle();
-      DrawText("Score:", width / 1.2, height / 10, 50, bgColor);
-      DrawText(TextFormat("%i", player1Score), width / 1.2, height / 6, 60, bgColor);
-      DrawText("FPS:", width / 8, height / 10, 50, bgColor);
-      DrawText(TextFormat("%i", GetFPS()), width / 8, height / 6, 60, bgColor);
+
+      // Draw score background and text
+      Rectangle scoreRect = {width / 1.2 - 10, height / 10 - 10, 200, 120};
+      DrawRectangleRounded(scoreRect, 0.2, 10, Fade(BLACK, 0.5));
+      DrawText("Score:", width / 1.2, height / 10, 40, RAYWHITE);
+      DrawText(TextFormat("%i", player1Score), width / 1.2, height / 6, 50, RAYWHITE);
+
+      // Draw FPS background and text
+      Rectangle fpsRect = {width / 8 - 10, height / 10 - 10, 200, 120};
+      DrawRectangleRounded(fpsRect, 0.2, 10, Fade(BLACK, 0.5));
+      DrawText("FPS:", width / 8, height / 10, 40, RAYWHITE);
+      DrawText(TextFormat("%i", GetFPS()), width / 8, height / 6, 50, RAYWHITE);
+
       // DrawLine(width / 2, 35, width / 2, height, bgColor);
 
       if (isGameOver)
@@ -235,8 +244,16 @@ int main()
     {
       ToggleFullscreen();
     }
-  }
 
+    // Check for backspace key press to return to menu
+    if (IsKeyPressed(KEY_BACKSPACE))
+    {
+      gameStarted = false;
+      isGameOver = false;
+      scoreSaved = false;
+    }
+  }
+  UnloadResources();
   UnloadTexture(texScarfyAnim);
   UnloadImage(imScarfyAnim);
   CloseWindow();
