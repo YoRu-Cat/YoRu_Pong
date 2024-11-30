@@ -1,13 +1,93 @@
 #include <raylib.h>
 #include "menu.h"
 
+#define MAX_INPUT_CHARS 8
+
 extern bool gameStarted;
 extern bool showLeaderboard;
 extern bool showSettings;
 extern bool themePage;
 
+char name[MAX_INPUT_CHARS + 1] = "\0";
+int letterCount = 0;
+Rectangle textBox = {GetScreenWidth() / 2.0f - 100, GetScreenHeight() / 2.0f + 240, 225, 50};
+bool mouseOnText = false;
+int framesCounter = 0;
+
+void UpdateTextBox()
+{
+  Vector2 mousePosition = GetMousePosition();
+  if (CheckCollisionPointRec(mousePosition, textBox))
+    mouseOnText = true;
+  else
+    mouseOnText = false;
+
+  if (mouseOnText)
+  {
+    SetMouseCursor(MOUSE_CURSOR_IBEAM);
+    int key = GetCharPressed();
+    while (key > 0)
+    {
+      if ((key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS))
+      {
+        name[letterCount] = (char)key;
+        name[letterCount + 1] = '\0';
+        letterCount++;
+      }
+      key = GetCharPressed();
+    }
+
+    if (IsKeyPressed(KEY_BACKSPACE))
+    {
+      letterCount--;
+      if (letterCount < 0)
+        letterCount = 0;
+      name[letterCount] = '\0';
+    }
+  }
+  else
+    SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+
+  if (mouseOnText)
+  {
+    framesCounter++;
+  }
+  else
+  {
+    framesCounter = 0;
+  }
+}
+
+void DrawTextBox()
+{
+  textBox.width = 300.0f; // Set the width equal to other buttons
+  textBox.height = 70.0f; // Set the height equal to other buttons
+  textBox.x = GetScreenWidth() / 2.0f - textBox.width / 2.0f;
+  DrawRectangleRec(textBox, LIGHTGRAY);
+  if (mouseOnText)
+    DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, RED);
+  else
+    DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, DARKGRAY);
+
+  DrawText(name, (int)textBox.x + 5, (int)textBox.y + 8, 40, MAROON);
+  DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, MAX_INPUT_CHARS), GetScreenWidth() / 2 - MeasureText(TextFormat("INPUT CHARS: %i/%i", letterCount, MAX_INPUT_CHARS), 20) / 2, GetScreenHeight() / 2 + 300, 20, DARKGRAY);
+
+  if (mouseOnText)
+  {
+    if (letterCount < MAX_INPUT_CHARS)
+    {
+      if (((framesCounter / 20) % 2) == 0)
+        DrawText("_", (int)textBox.x + 8 + MeasureText(name, 40), (int)textBox.y + 12, 40, MAROON);
+    }
+    else
+      DrawText("Press BACKSPACE to delete chars...", GetScreenWidth() / 2 - MeasureText("Press BACKSPACE to delete chars...", 20) / 2, GetScreenHeight() / 2 + 350, 20, GRAY);
+  }
+}
+
 void DrawMenu()
 {
+  UpdateTextBox();
+
   Color bgColor = {205, 25, 74, 255};
   Vector2 mousePosition = GetMousePosition();
   bool playButtonClicked = false;
@@ -39,6 +119,8 @@ void DrawMenu()
 
   BeginDrawing();
   ClearBackground(RAYWHITE);
+
+  DrawTextBox();
 
   DrawRectangleRec(playButton, bgColor);
   DrawText("Play", playButton.x + playButton.width / 2 - MeasureText("Play", 30) / 2, playButton.y + playButton.height / 2 - 15, 30, RAYWHITE);
